@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HSK Master - Luyện Gõ Hán Tự</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@500;700&display=swap');
+        
+        :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --input-bg: #f8fafc;
+            --setting-item-bg: #f1f5f9; 
+        }
+
+        .dark {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --input-bg: #0f172a;
+            --setting-item-bg: #1e293b;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            transition: background-color 0.3s, color 0.3s;
+            min-height: 100vh;
+        }
+
+        .chinese-font {
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+
+        .q-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 140px;
+            margin-bottom: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .q-content-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex: 1;
+        }
+
+        #q-main-text {
+            line-height: 1.2;
+            font-weight: 700;
+        }
+
+        .q-details {
+            display: flex;
+            flex-direction: column;
+            border-left: 3px solid var(--border-color);
+            padding-left: 20px;
+            gap: 4px;
+        }
+
+        .btn-next-inline {
+            background: #3b82f6;
+            color: white;
+            width: 54px;
+            height: 54px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-left: 16px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        .btn-next-inline:hover { background: #2563eb; transform: scale(1.05); }
+
+        .option-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+            font-weight: 500;
+            color: var(--text-main);
+            transition: all 0.2s;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 64px;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        }
+
+        .option-btn.correct { background: #166534 !important; border-color: #22c55e !important; color: white !important; }
+        .option-btn.wrong { background: #991b1b !important; border-color: #ef4444 !important; color: white !important; }
+
+        .custom-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border-color);
+            background: var(--input-bg);
+            color: var(--text-main);
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .custom-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
+        
+        .custom-input.correct-input { border-color: #22c55e !important; background: #f0fdf4 !important; color: #166534 !important; }
+        .dark .custom-input.correct-input { background: #064e3b !important; color: #ecfdf5 !important; }
+        
+        .custom-input.wrong-input { border-color: #ef4444 !important; background: #fef2f2 !important; color: #991b1b !important; font-weight: 700; }
+        .dark .custom-input.wrong-input { background: #7f1d1d !important; color: #fef2f2 !important; }
+
+        .vocab-table { width: 100%; border-collapse: collapse; }
+        .vocab-table th { 
+            background: var(--bg-body);
+            color: var(--text-muted); 
+            font-size: 11px; 
+            font-weight: 800; 
+            text-transform: uppercase;
+            padding: 14px 10px;
+            border-bottom: 2px solid var(--border-color);
+            text-align: left;
+        }
+        .vocab-table td { border-bottom: 1px solid var(--border-color); padding: 12px 10px; color: var(--text-main); }
+        
+        .hidden { display: none !important; }
+        .invisible { visibility: hidden; }
+
+        .radio-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-main);
+            height: 100%;
+        }
+        input[type="radio"]:checked + .radio-box {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .dark-mode-toggle {
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+
+        .color-picker-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--input-bg);
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            flex: 1;
+        }
+
+        .bg-custom-card { background: var(--bg-card); border-color: var(--border-color); }
+        .text-custom-muted { color: var(--text-muted); }
+
+        .setting-item-box {
+            background-color: var(--setting-item-bg);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .dark .setting-item-box {
+            border-color: var(--border-color);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-2xl mx-auto mb-6 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <div class="bg-blue-600 text-white p-1.5 rounded-lg">
+                <i class="fa-solid fa-keyboard text-xs"></i>
+            </div>
+            <h1 class="font-bold text-base tracking-tight uppercase">HSK Master</h1>
+        </div>
+        <div class="flex items-center gap-3">
+            <button onclick="toggleDarkMode()" class="dark-mode-toggle" title="Chuyển chế độ sáng/tối">
+                <i id="theme-icon" class="fa-solid fa-moon"></i>
+            </button>
+            <div class="flex bg-custom-card border rounded-xl p-1 shadow-sm">
+                <button onclick="showTab('data')" id="tab-data-btn" class="px-5 py-2 rounded-lg text-[11px] font-bold bg-blue-600 text-white transition-all">DỮ LIỆU</button>
+                <button onclick="showTab('quiz')" id="tab-quiz-btn" class="px-5 py-2 rounded-lg text-[11px] font-bold text-custom-muted transition-all">LUYỆN TẬP</button>
+            </div>
+        </div>
+    </div>
+
+    <main class="max-w-2xl mx-auto">
+        <div id="tab-data" class="space-y-4">
+            <div class="bg-custom-card p-5 rounded-2xl border shadow-sm">
+                <label class="text-[11px] font-bold text-custom-muted uppercase tracking-wider mb-2 block">Dán dữ liệu từ Excel (Hán tự - Pinyin - Nghĩa)</label>
+                <textarea id="bulk-input" rows="4" class="custom-input text-sm" placeholder="Ví dụ: 你好 - nǐhǎo - Xin chào"></textarea>
+                
+                <div class="mt-4 flex gap-3">
+                    <button onclick="saveData()" class="bg-blue-600 text-white px-8 py-3 rounded-xl text-xs font-bold hover:bg-blue-700 transition-all shadow-md uppercase flex-1">CẬP NHẬT DANH SÁCH</button>
+                    <button onclick="showTab('quiz')" class="bg-emerald-600 text-white px-8 py-3 rounded-xl text-xs font-bold hover:bg-emerald-700 transition-all shadow-md uppercase flex-1 flex items-center justify-center gap-2">
+                        BẮT ĐẦU <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-custom-card p-5 rounded-2xl border shadow-sm space-y-6">
+                <div>
+                    <div class="flex justify-between items-center mb-3">
+                        <label class="text-[11px] font-bold text-custom-muted uppercase tracking-wider">Cỡ chữ Bảng</label>
+                        <span id="table-font-size-val" class="text-xs font-bold text-blue-500">14px</span>
+                    </div>
+                    <input type="range" id="table-font-size-slider" min="10" max="40" value="14" oninput="updateTableFontSize(this.value)" class="w-full">
+                </div>
+
+                <div class="pt-2 border-t border-slate-700/10">
+                    <label class="text-[11px] font-bold text-custom-muted uppercase tracking-wider mb-3 block">Màu sắc hiển thị</label>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="color-picker-container">
+                            <input type="color" id="color-hanzi" value="#ef4444" oninput="updateColors()" class="w-6 h-6 p-0 border-none rounded bg-transparent cursor-pointer">
+                            <label class="text-[10px] font-bold text-custom-muted uppercase">Hán tự</label>
+                        </div>
+                        <div class="color-picker-container">
+                            <input type="color" id="color-pinyin" value="#22c55e" oninput="updateColors()" class="w-6 h-6 p-0 border-none rounded bg-transparent cursor-pointer">
+                            <label class="text-[10px] font-bold text-custom-muted uppercase">Pinyin</label>
+                        </div>
+                        <div class="color-picker-container">
+                            <input type="color" id="color-meaning" value="#3b82f6" oninput="updateColors()" class="w-6 h-6 p-0 border-none rounded bg-transparent cursor-pointer">
+                            <label class="text-[10px] font-bold text-custom-muted uppercase">Nghĩa</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-custom-card rounded-2xl border overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="vocab-table">
+                        <thead>
+                            <tr>
+                                <th class="w-1/4">Hán tự</th>
+                                <th class="w-1/3">Pinyin</th>
+                                <th>Nghĩa</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vocab-list" class="text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-quiz" class="hidden">
+            <div id="quiz-setup" class="bg-custom-card p-8 rounded-2xl border shadow-sm">
+                <div class="flex items-center gap-3 mb-8">
+                    <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
+                        <i class="fa-solid fa-gear text-blue-600"></i>
+                    </div>
+                    <h3 class="font-bold text-base leading-none">Thiết lập bài tập</h3>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <label class="text-[11px] font-bold text-custom-muted uppercase tracking-wider mb-3 block">Loại bài tập</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="relative">
+                                <input type="radio" name="q-feature" value="multi" checked class="hidden" onchange="toggleModeOptions()">
+                                <div class="radio-box">Trắc nghiệm</div>
+                            </label>
+                            <label class="relative">
+                                <input type="radio" name="q-feature" value="manual" class="hidden" onchange="toggleModeOptions()">
+                                <div class="radio-box">Tự luận (Gõ Hán tự)</div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="mode-options-container">
+                        <label class="text-[11px] font-bold text-custom-muted uppercase tracking-wider mb-3 block">Chế độ câu hỏi</label>
+                        <div id="multi-modes" class="grid grid-cols-2 gap-3">
+                            <label class="relative">
+                                <input type="radio" name="q-mode-multi" value="hz-vn" checked class="hidden">
+                                <div class="radio-box">Hán tự → Nghĩa</div>
+                            </label>
+                            <label class="relative">
+                                <input type="radio" name="q-mode-multi" value="vn-hz" class="hidden">
+                                <div class="radio-box">Nghĩa → Hán tự</div>
+                            </label>
+                        </div>
+                        <div id="manual-modes" class="grid grid-cols-2 gap-3 hidden">
+                            <label class="relative">
+                                <input type="radio" name="q-mode-manual" value="vn-hz" checked class="hidden">
+                                <div class="radio-box">Nghĩa → Hán tự</div>
+                            </label>
+                            <label class="relative">
+                                <input type="radio" name="q-mode-manual" value="hz-hz" class="hidden">
+                                <div class="radio-box">Hán tự → Hán tự</div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-[11px] font-bold text-custom-muted uppercase tracking-wider mb-3 block">Số lượng câu</label>
+                        <div class="flex gap-2">
+                            <input type="number" id="q-count-input" class="custom-input font-bold text-blue-500 h-11" placeholder="Nhập số..." min="1">
+                            <button onclick="setMaxQuestions()" class="bg-blue-600/10 text-blue-500 px-4 rounded-xl text-[10px] font-bold uppercase whitespace-nowrap">Tối đa</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="setting-item-box">
+                            <div class="flex justify-between items-center mb-3">
+                                <label class="text-[11px] font-bold text-custom-muted uppercase tracking-wider">Cỡ chữ câu hỏi</label>
+                                <span id="q-font-size-val" class="text-xs font-bold text-blue-500">32px</span>
+                            </div>
+                            <input type="range" id="q-font-size-slider" min="16" max="80" value="32" oninput="updateQFontSize(this.value)" class="w-full">
+                        </div>
+                        <div class="setting-item-box">
+                            <div class="flex justify-between items-center mb-3">
+                                <label class="text-[11px] font-bold text-custom-muted uppercase tracking-wider">Cỡ chữ trả lời</label>
+                                <span id="a-font-size-val" class="text-xs font-bold text-emerald-500">16px</span>
+                            </div>
+                            <input type="range" id="a-font-size-slider" min="12" max="40" value="16" oninput="updateAFontSize(this.value)" class="w-full">
+                        </div>
+                    </div>
+
+                    <button onclick="startQuiz()" class="w-full bg-blue-600 text-white py-4 rounded-2xl text-sm font-bold hover:bg-blue-700 transition-all shadow-lg flex items-center justify-center gap-2">
+                        BẮT ĐẦU LUYỆN TẬP <i class="fa-solid fa-play text-[10px]"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="quiz-active" class="hidden">
+                <div class="flex justify-between items-center mb-5 px-1">
+                    <div>
+                        <span id="quiz-round-tag" class="text-[10px] font-extrabold text-blue-600 uppercase bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded mb-1 inline-block">Vòng 1</span>
+                        <p id="quiz-progress" class="text-[11px] font-bold text-custom-muted uppercase">CÂU 1/10</p>
+                    </div>
+                    <div id="quiz-stats" class="flex gap-4 text-right">
+                        <div>
+                            <p class="text-[9px] font-bold text-custom-muted uppercase">Đúng</p>
+                            <p id="quiz-correct" class="text-sm font-bold text-emerald-500">0</p>
+                        </div>
+                        <div>
+                            <p class="text-[9px] font-bold text-custom-muted uppercase">Tỉ lệ</p>
+                            <p id="quiz-rate" class="text-sm font-bold text-blue-500">0%</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="question-card" class="q-card shadow-sm">
+                    <div class="q-content-left">
+                        <div id="q-main-text" class="">--</div>
+                        <div id="q-info" class="q-details hidden">
+                            <span id="info-slot-1" class="text-xs font-medium uppercase tracking-wider opacity-60"></span>
+                            <span id="info-slot-2" class="text-lg font-bold"></span>
+                            <span id="info-slot-3" class="text-base font-medium"></span>
+                        </div>
+                    </div>
+                    <div id="next-action" class="invisible">
+                        <button onclick="nextQuestion()" class="btn-next-inline">
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="quiz-controls">
+                    <div id="options" class="option-grid"></div>
+                    <div id="manual-input-area" class="hidden space-y-4">
+                        <div class="bg-custom-card p-5 rounded-2xl border shadow-sm">
+                            <label class="text-[10px] font-bold text-custom-muted uppercase mb-2 block">Gõ Hán tự đáp án:</label>
+                            <input type="text" id="user-answer" class="custom-input chinese-font text-center" placeholder="..." autocomplete="off">
+                            <p id="input-hint" class="text-[10px] text-blue-500 mt-3 italic text-center font-medium">* Nhấn Enter để kiểm tra</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="completion-status" class="hidden text-center py-8">
+                    <div class="p-6 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl mb-6 flex items-center justify-center gap-3">
+                        <i class="fa-solid fa-circle-check text-emerald-500 text-xl"></i>
+                        <span class="font-bold text-emerald-500 dark:text-emerald-400 uppercase tracking-wider">Hoàn thành bài luyện tập</span>
+                    </div>
+                    
+                    <div id="wrong-summary" class="mb-6 hidden">
+                        <p class="text-xs font-bold text-custom-muted uppercase mb-3">Các từ cần lưu ý:</p>
+                        <div id="wrong-list-box" class="flex flex-wrap justify-center gap-2"></div>
+                    </div>
+
+                    <button onclick="resetToSetup()" class="bg-slate-100 dark:bg-slate-800 px-6 py-3 rounded-xl text-emerald-500 dark:text-emerald-400 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold uppercase tracking-widest transition-all border border-slate-200 dark:border-slate-700">
+                         Quay lại thiết lập
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const STORAGE_KEY = 'vocal_db_v25';
+        const COLOR_KEY = 'vocal_colors_config_v2';
+        const THEME_KEY = 'vocal_theme_preference';
+        
+        let vocabulary = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        let colors = JSON.parse(localStorage.getItem(COLOR_KEY)) || {
+            hanzi: '#ef4444',
+            pinyin: '#22c55e',
+            meaning: '#3b82f6'
+        };
+        let quizPool = [];
+        let wrongAnswers = [];
+        let currentIndex = 0;
+        let totalCorrect = 0;
+        let answered = false;
+        let currentMode = 'hz-vn';
+        let currentFeature = 'multi'; 
+        let qFontSize = 32;
+        let aFontSize = 16;
+        let tableFontSize = 14;
+        let roundNumber = 1;
+
+        window.onload = () => {
+            initTheme();
+            initColors();
+            renderTable();
+        };
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem(THEME_KEY);
+            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('theme-icon').className = 'fa-solid fa-sun';
+            }
+        }
+
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
+        }
+
+        function initColors() {
+            document.getElementById('color-hanzi').value = colors.hanzi;
+            document.getElementById('color-pinyin').value = colors.pinyin;
+            document.getElementById('color-meaning').value = colors.meaning;
+            applyColorStyles();
+        }
+
+        function updateColors() {
+            colors.hanzi = document.getElementById('color-hanzi').value;
+            colors.pinyin = document.getElementById('color-pinyin').value;
+            colors.meaning = document.getElementById('color-meaning').value;
+            localStorage.setItem(COLOR_KEY, JSON.stringify(colors));
+            applyColorStyles();
+            renderTable();
+        }
+
+        function applyColorStyles() {
+            const styleId = 'dynamic-vocab-colors';
+            let styleEl = document.getElementById(styleId) || document.createElement('style');
+            styleEl.id = styleId;
+            styleEl.innerHTML = `
+                .hanzi-cell, .text-color-hanzi, .q-hanzi-extra { color: ${colors.hanzi} !important; }
+                .pinyin-cell, .text-color-pinyin, .q-pinyin { color: ${colors.pinyin} !important; }
+                .meaning-cell, .text-color-meaning, .q-meaning { color: ${colors.meaning} !important; }
+            `;
+            if (!document.getElementById(styleId)) document.head.appendChild(styleEl);
+        }
+
+        function toggleModeOptions() {
+            const feature = document.querySelector('input[name="q-feature"]:checked').value;
+            document.getElementById('multi-modes').classList.toggle('hidden', feature !== 'multi');
+            document.getElementById('manual-modes').classList.toggle('hidden', feature !== 'manual');
+        }
+
+        function updateTableFontSize(val) {
+            tableFontSize = val;
+            document.getElementById('table-font-size-val').innerText = val + 'px';
+            renderTable();
+        }
+
+        function updateQFontSize(val) {
+            qFontSize = val;
+            document.getElementById('q-font-size-val').innerText = val + 'px';
+            if(document.getElementById('q-main-text')) document.getElementById('q-main-text').style.fontSize = val + 'px';
+        }
+
+        function updateAFontSize(val) {
+            aFontSize = val;
+            document.getElementById('a-font-size-val').innerText = val + 'px';
+            document.querySelectorAll('.option-btn').forEach(btn => btn.style.fontSize = val + 'px');
+            if(document.getElementById('user-answer')) document.getElementById('user-answer').style.fontSize = val + 'px';
+        }
+
+        function showTab(type) {
+            document.getElementById('tab-data').classList.toggle('hidden', type !== 'data');
+            document.getElementById('tab-quiz').classList.toggle('hidden', type !== 'quiz');
+            
+            const btnData = document.getElementById('tab-data-btn');
+            const btnQuiz = document.getElementById('tab-quiz-btn');
+            const activeClass = "px-5 py-2 rounded-lg text-[11px] font-bold bg-blue-600 text-white transition-all shadow-md";
+            const inactiveClass = "px-5 py-2 rounded-lg text-[11px] font-bold text-custom-muted transition-all";
+            if(type === 'data') {
+                btnData.className = activeClass;
+                btnQuiz.className = inactiveClass;
+                renderTable();
+            } else {
+                btnQuiz.className = activeClass;
+                btnData.className = inactiveClass;
+                resetToSetup();
+            }
+        }
+
+        function setMaxQuestions() {
+            document.getElementById('q-count-input').value = vocabulary.length;
+        }
+
+        function saveData() {
+            const input = document.getElementById('bulk-input').value.trim();
+            if(!input) return;
+            vocabulary = input.split('\n').map(line => {
+                const parts = line.split(/[\t\-–—]/).map(s => s.trim());
+                if(parts.length >= 3) return { h: parts[0], p: parts[1], m: parts[2] };
+                return null;
+            }).filter(x => x);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(vocabulary));
+            renderTable();
+            console.log("Đã cập nhật " + vocabulary.length + " từ vựng.");
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('vocab-list');
+            if(vocabulary.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center py-10 text-slate-400 italic text-xs">Chưa có dữ liệu.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = vocabulary.map(v => `
+                <tr>
+                    <td class="chinese-font hanzi-cell" style="font-size: ${tableFontSize}px">${v.h}</td>
+                    <td class="pinyin-cell" style="font-size: ${tableFontSize}px">${v.p}</td>
+                    <td class="meaning-cell" style="font-size: ${tableFontSize}px">${v.m}</td>
+                </tr>
+            `).join('');
+        }
+
+        function startQuiz() {
+            if(vocabulary.length < 1) return;
+            let limit = parseInt(document.getElementById('q-count-input').value) || vocabulary.length;
+            limit = Math.min(limit, vocabulary.length);
+            
+            currentFeature = document.querySelector('input[name="q-feature"]:checked').value;
+            currentMode = currentFeature === 'multi' 
+                ? document.querySelector('input[name="q-mode-multi"]:checked').value
+                : document.querySelector('input[name="q-mode-manual"]:checked').value;
+            quizPool = [...vocabulary].sort(() => Math.random() - 0.5).slice(0, limit);
+            wrongAnswers = [];
+            currentIndex = 0;
+            totalCorrect = 0;
+            roundNumber = 1;
+            document.getElementById('quiz-setup').classList.add('hidden');
+            document.getElementById('quiz-active').classList.remove('hidden');
+            document.getElementById('completion-status').classList.add('hidden');
+            document.getElementById('question-card').classList.remove('hidden');
+            document.getElementById('quiz-controls').classList.remove('hidden');
+            
+            document.getElementById('options').classList.toggle('hidden', currentFeature !== 'multi');
+            document.getElementById('manual-input-area').classList.toggle('hidden', currentFeature !== 'manual');
+            
+            if (currentFeature === 'manual') {
+                const input = document.getElementById('user-answer');
+                input.onkeydown = (e) => { 
+                    if (e.key === 'Enter') {
+                        if (!answered) {
+                            checkManualAnswer();
+                        }
+                    } 
+                    else if (e.code === 'Space') {
+                        if (answered) {
+                            e.preventDefault();
+                            nextQuestion();
+                        }
+                    }
+                };
+            }
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            answered = false;
+            const q = quizPool[currentIndex];
+            const qMain = document.getElementById('q-main-text');
+            
+            if (currentMode === 'hz-vn' || currentMode === 'hz-hz') {
+                qMain.innerText = q.h;
+                qMain.className = 'text-color-hanzi chinese-font';
+            } else {
+                qMain.innerText = q.m;
+                qMain.className = 'text-color-meaning';
+            }
+            
+            qMain.style.fontSize = qFontSize + 'px';
+            document.getElementById('q-info').classList.add('hidden');
+            document.getElementById('next-action').classList.add('invisible');
+            document.getElementById('quiz-progress').innerText = `CÂU ${currentIndex + 1}/${quizPool.length}`;
+            document.getElementById('quiz-round-tag').innerText = `Vòng ${roundNumber}`;
+            
+            if (currentFeature === 'multi') {
+                let opts = [q];
+                let others = vocabulary.filter(v => v.h !== q.h).sort(() => Math.random() - 0.5);
+                opts = opts.concat(others.slice(0, 3)).sort(() => Math.random() - 0.5);
+                document.getElementById('options').innerHTML = opts.map(o => {
+                    const isVn = currentMode === 'hz-vn';
+                    const text = isVn ? o.m : o.h;
+                    const style = isVn ? `color: ${colors.meaning}` : `color: ${colors.hanzi}`;
+                    return `<button onclick="checkMultiAnswer(this, '${o.h}')" class="option-btn ${isVn ? '' : 'chinese-font'}" style="font-size: ${aFontSize}px; ${style}">${text}</button>`;
+                }).join('');
+            } else {
+                const input = document.getElementById('user-answer');
+                input.value = '';
+                input.className = 'custom-input chinese-font text-center';
+                input.readOnly = false; // Sửa từ disabled thành readOnly
+                document.getElementById('input-hint').innerText = "* Nhấn Enter để kiểm tra";
+                document.getElementById('input-hint').className = "text-[10px] mt-3 italic text-center text-blue-500 font-medium";
+                setTimeout(() => input.focus(), 50);
+            }
+        }
+
+        function checkMultiAnswer(btn, selectedH) {
+            if(answered) return;
+            answered = true;
+            const q = quizPool[currentIndex];
+            const isCorrect = selectedH === q.h;
+            if(isCorrect) {
+                btn.classList.add('correct');
+                totalCorrect++;
+            } else {
+                btn.classList.add('wrong');
+                wrongAnswers.push(q);
+                document.querySelectorAll('.option-btn').forEach(b => {
+                    if(b.innerText === (currentMode === 'hz-vn' ? q.m : q.h)) b.classList.add('correct');
+                });
+            }
+            showFeedback();
+        }
+
+        function checkManualAnswer() {
+            if(answered) return;
+            const input = document.getElementById('user-answer');
+            const userVal = input.value.trim();
+            if(!userVal) return;
+
+            answered = true;
+            const q = quizPool[currentIndex];
+            const isCorrect = userVal === q.h;
+
+            input.readOnly = true; // Sửa từ disabled thành readOnly để nhận phím Space
+            if(isCorrect) {
+                input.classList.add('correct-input');
+                totalCorrect++;
+                document.getElementById('input-hint').innerText = "Chính xác!";
+                document.getElementById('input-hint').className = "text-[10px] mt-3 italic text-center text-emerald-500 font-bold";
+            } else {
+                input.classList.add('wrong-input');
+                wrongAnswers.push(q);
+                document.getElementById('input-hint').innerText = "Sai rồi! Đáp án: " + q.h;
+                document.getElementById('input-hint').className = "text-[10px] mt-3 italic text-center text-red-500 font-bold";
+            }
+            showFeedback();
+        }
+
+        function showFeedback() {
+            const q = quizPool[currentIndex];
+            document.getElementById('info-slot-1').innerText = "Đáp án chi tiết";
+            document.getElementById('info-slot-2').innerText = q.p;
+            document.getElementById('info-slot-2').className = "text-lg font-bold text-color-pinyin";
+            document.getElementById('info-slot-3').innerText = (currentMode.includes('vn') ? q.h : q.m);
+            document.getElementById('info-slot-3').className = "text-base font-medium " + (currentMode.includes('vn') ? "chinese-font text-color-hanzi" : "text-color-meaning");
+            
+            document.getElementById('q-info').classList.remove('hidden');
+            document.getElementById('next-action').classList.remove('invisible');
+            
+            const rate = Math.round((totalCorrect / (currentIndex + 1)) * 100);
+            document.getElementById('quiz-correct').innerText = totalCorrect;
+            document.getElementById('quiz-rate').innerText = rate + "%";
+        }
+
+        function nextQuestion() {
+            const q = quizPool[currentIndex];
+            const isWrong = wrongAnswers.some(w => w.h === q.h);
+            if (isWrong) {
+                quizPool.push({...q});
+                wrongAnswers = wrongAnswers.filter(w => w.h !== q.h);
+            }
+
+            currentIndex++;
+            if(currentIndex < quizPool.length) {
+                loadQuestion();
+            } else {
+                showCompletion();
+            }
+        }
+
+        function showCompletion() {
+            document.getElementById('question-card').classList.add('hidden');
+            document.getElementById('quiz-controls').classList.add('hidden');
+            document.getElementById('completion-status').classList.remove('hidden');
+            
+            if(wrongAnswers.length > 0) {
+                document.getElementById('wrong-summary').classList.remove('hidden');
+                document.getElementById('wrong-list-box').innerHTML = [...new Set(wrongAnswers)].map(v => `
+                    <div class="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm">
+                        <span class="chinese-font font-bold text-color-hanzi">${v.h}</span>
+                        <span class="text-[10px] text-custom-muted ml-1">${v.p}</span>
+                    </div>
+                `).join('');
+            } else {
+                document.getElementById('wrong-summary').classList.add('hidden');
+            }
+        }
+
+        function resetToSetup() {
+            document.getElementById('quiz-setup').classList.remove('hidden');
+            document.getElementById('quiz-active').classList.add('hidden');
+            document.getElementById('completion-status').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
