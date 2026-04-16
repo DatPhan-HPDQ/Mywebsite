@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HSK Master - Luyện Gõ Hán Tự</title>
+    <title>Tổng Hợp Dữ Liệu</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@500;700&display=swap');
-        
+
         :root {
             --bg-body: #f8fafc;
             --bg-card: #ffffff;
@@ -145,7 +145,7 @@
             border-bottom: 2px solid var(--border-color);
             text-align: left;
         }
-        .vocab-table td { border-bottom: 1px solid var(--border-color); padding: 12px 10px; color: var(--text-main); }
+        .vocab-table td { border-bottom: 1px solid var(--border-color); padding: 12px 10px; color: var(--text-main); position: relative; }
         
         .hidden { display: none !important; }
         .invisible { visibility: hidden; }
@@ -205,8 +205,74 @@
             border: 1px solid transparent;
             transition: all 0.3s ease;
         }
-        .dark .setting-item-box {
-            border-color: var(--border-color);
+        .dark .setting-item-box { border-color: var(--border-color); }
+
+        .learned-row td {
+            text-decoration: line-through;
+            text-decoration-color: #ef4444; 
+            text-decoration-thickness: 2px;
+            opacity: 0.6;
+        }
+        .custom-checkbox { cursor: pointer; width: 16px; height: 16px; accent-color: #3b82f6; }
+
+        /* Flashcard CSS */
+        .flashcard-container {
+            perspective: 1000px;
+            width: 100%;
+            height: 320px;
+            cursor: pointer;
+            margin-bottom: 24px;
+        }
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .flashcard-inner.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            display: flex;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        .flashcard-front {
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .flashcard-back {
+            transform: rotateY(180deg);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            gap: 20px;
+        }
+        .back-divider {
+            height: 80%;
+            width: 2px;
+            background: var(--border-color);
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .back-left, .back-right {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
         }
     </style>
 </head>
@@ -219,23 +285,25 @@
             </div>
             <h1 class="font-bold text-base tracking-tight uppercase">HSK Master</h1>
         </div>
+ 
         <div class="flex items-center gap-3">
             <button onclick="toggleDarkMode()" class="dark-mode-toggle" title="Chuyển chế độ sáng/tối">
                 <i id="theme-icon" class="fa-solid fa-moon"></i>
             </button>
             <div class="flex bg-custom-card border rounded-xl p-1 shadow-sm">
-                <button onclick="showTab('data')" id="tab-data-btn" class="px-5 py-2 rounded-lg text-[11px] font-bold bg-blue-600 text-white transition-all">DỮ LIỆU</button>
-                <button onclick="showTab('quiz')" id="tab-quiz-btn" class="px-5 py-2 rounded-lg text-[11px] font-bold text-custom-muted transition-all">LUYỆN TẬP</button>
+                <button onclick="showTab('data')" id="tab-data-btn" class="px-3 py-2 rounded-lg text-[10px] font-bold bg-blue-600 text-white transition-all">DỮ LIỆU</button>
+                <button onclick="showTab('quiz')" id="tab-quiz-btn" class="px-3 py-2 rounded-lg text-[10px] font-bold text-custom-muted transition-all">LUYỆN TẬP</button>
+                <button onclick="showTab('flashcard')" id="tab-flashcard-btn" class="px-3 py-2 rounded-lg text-[10px] font-bold text-custom-muted transition-all">FLASHCARD</button>
             </div>
         </div>
     </div>
 
     <main class="max-w-2xl mx-auto">
+      
         <div id="tab-data" class="space-y-4">
             <div class="bg-custom-card p-5 rounded-2xl border shadow-sm">
                 <label class="text-[11px] font-bold text-custom-muted uppercase tracking-wider mb-2 block">Dán dữ liệu từ Excel (Hán tự - Pinyin - Nghĩa)</label>
                 <textarea id="bulk-input" rows="4" class="custom-input text-sm" placeholder="Ví dụ: 你好 - nǐhǎo - Xin chào"></textarea>
-                
                 <div class="mt-4 flex gap-3">
                     <button onclick="saveData()" class="bg-blue-600 text-white px-8 py-3 rounded-xl text-xs font-bold hover:bg-blue-700 transition-all shadow-md uppercase flex-1">CẬP NHẬT DANH SÁCH</button>
                     <button onclick="showTab('quiz')" class="bg-emerald-600 text-white px-8 py-3 rounded-xl text-xs font-bold hover:bg-emerald-700 transition-all shadow-md uppercase flex-1 flex items-center justify-center gap-2">
@@ -252,7 +320,6 @@
                     </div>
                     <input type="range" id="table-font-size-slider" min="10" max="40" value="14" oninput="updateTableFontSize(this.value)" class="w-full">
                 </div>
-
                 <div class="pt-2 border-t border-slate-700/10">
                     <label class="text-[11px] font-bold text-custom-muted uppercase tracking-wider mb-3 block">Màu sắc hiển thị</label>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -280,6 +347,7 @@
                                 <th class="w-1/4">Hán tự</th>
                                 <th class="w-1/3">Pinyin</th>
                                 <th>Nghĩa</th>
+                                <th class="w-16 text-center">Thuộc</th>
                             </tr>
                         </thead>
                         <tbody id="vocab-list" class="text-sm"></tbody>
@@ -417,18 +485,76 @@
                         <i class="fa-solid fa-circle-check text-emerald-500 text-xl"></i>
                         <span class="font-bold text-emerald-500 dark:text-emerald-400 uppercase tracking-wider">Hoàn thành bài luyện tập</span>
                     </div>
-                    
                     <div id="wrong-summary" class="mb-6 hidden">
                         <p class="text-xs font-bold text-custom-muted uppercase mb-3">Các từ cần lưu ý:</p>
                         <div id="wrong-list-box" class="flex flex-wrap justify-center gap-2"></div>
                     </div>
-
                     <button onclick="resetToSetup()" class="bg-slate-100 dark:bg-slate-800 px-6 py-3 rounded-xl text-emerald-500 dark:text-emerald-400 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold uppercase tracking-widest transition-all border border-slate-200 dark:border-slate-700">
-                         Quay lại thiết lập
+                        Quay lại thiết lập
                     </button>
                 </div>
             </div>
         </div>
+
+        <div id="tab-flashcard" class="hidden">
+            <div id="flashcard-setup" class="bg-custom-card p-8 rounded-2xl border shadow-sm mb-6 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="setting-item-box">
+                        <label class="text-[11px] font-bold text-custom-muted uppercase mb-3 block">Cỡ chữ Mặt trước (Hán tự)</label>
+                        <input type="range" min="20" max="100" value="60" oninput="updateFlashFontSize('front', this.value)" class="w-full">
+                        <div class="text-right text-xs font-bold text-blue-500 mt-1"><span id="flash-front-val">60</span>px</div>
+                    </div>
+                    <div class="setting-item-box">
+                        <label class="text-[11px] font-bold text-custom-muted uppercase mb-3 block">Cỡ chữ Mặt sau (Pinyin/Nghĩa)</label>
+                        <input type="range" min="14" max="50" value="24" oninput="updateFlashFontSize('back', this.value)" class="w-full">
+                        <div class="text-right text-xs font-bold text-emerald-500 mt-1"><span id="flash-back-val">24</span>px</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-700/10">
+                    <div class="setting-item-box">
+                        <label class="text-[11px] font-bold text-custom-muted uppercase mb-3 block">Thời gian Mặt trước (Auto)</label>
+                        <input type="range" id="time-front-slider" min="1" max="30" value="10" oninput="updateAutoTime('front', this.value)" class="w-full">
+                        <div class="text-right text-xs font-bold text-blue-500 mt-1"><span id="time-front-val">10</span>s</div>
+                    </div>
+                    <div class="setting-item-box">
+                        <label class="text-[11px] font-bold text-custom-muted uppercase mb-3 block">Thời gian Mặt sau (Auto)</label>
+                        <input type="range" id="time-back-slider" min="1" max="30" value="10" oninput="updateAutoTime('back', this.value)" class="w-full">
+                        <div class="text-right text-xs font-bold text-emerald-500 mt-1"><span id="time-back-val">10</span>s</div>
+                    </div>
+                </div>
+
+                <button onclick="startFlashcards()" class="w-full bg-blue-600 text-white py-4 rounded-2xl text-sm font-bold hover:bg-blue-700 shadow-lg uppercase">Bắt đầu học Flashcard</button>
+            </div>
+
+            <div id="flashcard-active" class="hidden">
+                <p id="flash-progress" class="text-center text-[11px] font-bold text-custom-muted uppercase mb-4">THẺ 1/10</p>
+                <div class="flashcard-container" onclick="flipCard()">
+                    <div class="flashcard-inner" id="flashcard-inner">
+                        <div class="flashcard-front">
+                            <div id="flash-h-front" class="chinese-font text-color-hanzi font-bold"></div>
+                            <p class="text-[10px] text-slate-400 mt-4 uppercase tracking-widest">Nhấn để xem đáp án</p>
+                        </div>
+                        <div class="flashcard-back">
+                            <div class="back-divider"></div>
+                            <div class="back-left">
+                                <div id="flash-h-back" class="chinese-font text-color-hanzi font-bold"></div>
+                            </div>
+                            <div class="back-right">
+                                <div id="flash-p" class="text-color-pinyin font-bold mb-2"></div>
+                                <div id="flash-m" class="text-color-meaning font-medium text-center"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="stopAuto(); resetToSetup();" class="flex-1 bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-md transition-all">Thoát</button>
+                    <button id="btn-auto-flash" onclick="toggleAuto()" class="flex-1 bg-slate-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-md transition-all">AUTO: TẮT</button>
+                    <button onclick="stopAuto(); nextFlashcard();" class="flex-[2] bg-blue-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-md">Thẻ tiếp theo</button>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <script>
@@ -453,6 +579,13 @@
         let aFontSize = 16;
         let tableFontSize = 14;
         let roundNumber = 1;
+
+        let flashFrontSize = 60;
+        let flashBackSize = 24;
+        let isAuto = false;
+        let autoTimer = null;
+        let timeFront = 10;
+        let timeBack = 10;
 
         window.onload = () => {
             initTheme();
@@ -509,7 +642,7 @@
         }
 
         function updateTableFontSize(val) {
-            tableFontSize = val;
+            tableFontSize = parseInt(val);
             document.getElementById('table-font-size-val').innerText = val + 'px';
             renderTable();
         }
@@ -528,26 +661,41 @@
         }
 
         function showTab(type) {
+            stopAuto();
             document.getElementById('tab-data').classList.toggle('hidden', type !== 'data');
             document.getElementById('tab-quiz').classList.toggle('hidden', type !== 'quiz');
+            document.getElementById('tab-flashcard').classList.toggle('hidden', type !== 'flashcard');
             
             const btnData = document.getElementById('tab-data-btn');
             const btnQuiz = document.getElementById('tab-quiz-btn');
-            const activeClass = "px-5 py-2 rounded-lg text-[11px] font-bold bg-blue-600 text-white transition-all shadow-md";
-            const inactiveClass = "px-5 py-2 rounded-lg text-[11px] font-bold text-custom-muted transition-all";
+            const btnFlash = document.getElementById('tab-flashcard-btn');
+
+            const activeClass = "px-3 py-2 rounded-lg text-[10px] font-bold bg-blue-600 text-white transition-all shadow-md";
+            const inactiveClass = "px-3 py-2 rounded-lg text-[10px] font-bold text-custom-muted transition-all";
+
+            [btnData, btnQuiz, btnFlash].forEach(b => b.className = inactiveClass);
             if(type === 'data') {
                 btnData.className = activeClass;
-                btnQuiz.className = inactiveClass;
                 renderTable();
-            } else {
+            } else if(type === 'quiz') {
                 btnQuiz.className = activeClass;
-                btnData.className = inactiveClass;
                 resetToSetup();
+            } else {
+                btnFlash.className = activeClass;
+                document.getElementById('flashcard-setup').classList.remove('hidden');
+                document.getElementById('flashcard-active').classList.add('hidden');
             }
         }
 
         function setMaxQuestions() {
-            document.getElementById('q-count-input').value = vocabulary.length;
+            const unlearnedCount = vocabulary.filter(v => !v.learned).length;
+            document.getElementById('q-count-input').value = unlearnedCount;
+        }
+
+        function toggleLearned(idx) {
+            vocabulary[idx].learned = !vocabulary[idx].learned;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(vocabulary));
+            renderTable();
         }
 
         function saveData() {
@@ -555,39 +703,45 @@
             if(!input) return;
             vocabulary = input.split('\n').map(line => {
                 const parts = line.split(/[\t\-–—]/).map(s => s.trim());
-                if(parts.length >= 3) return { h: parts[0], p: parts[1], m: parts[2] };
+                if(parts.length >= 3) return { h: parts[0], p: parts[1], m: parts[2], learned: false };
                 return null;
             }).filter(x => x);
             localStorage.setItem(STORAGE_KEY, JSON.stringify(vocabulary));
             renderTable();
-            console.log("Đã cập nhật " + vocabulary.length + " từ vựng.");
         }
 
         function renderTable() {
             const tbody = document.getElementById('vocab-list');
             if(vocabulary.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" class="text-center py-10 text-slate-400 italic text-xs">Chưa có dữ liệu.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-10 text-slate-400 italic text-xs">Chưa có dữ liệu.</td></tr>';
                 return;
             }
-            tbody.innerHTML = vocabulary.map(v => `
-                <tr>
+            
+            const secondaryFontSize = Math.max(8, tableFontSize - 5);
+            tbody.innerHTML = vocabulary.map((v, idx) => `
+                <tr class="${v.learned ? 'learned-row' : ''}">
                     <td class="chinese-font hanzi-cell" style="font-size: ${tableFontSize}px">${v.h}</td>
-                    <td class="pinyin-cell" style="font-size: ${tableFontSize}px">${v.p}</td>
-                    <td class="meaning-cell" style="font-size: ${tableFontSize}px">${v.m}</td>
+                    <td class="pinyin-cell" style="font-size: ${secondaryFontSize}px">${v.p}</td>
+                    <td class="meaning-cell" style="font-size: ${secondaryFontSize}px">${v.m}</td>
+                    <td class="text-center">
+                        <input type="checkbox" class="custom-checkbox" ${v.learned ? 'checked' : ''} onchange="toggleLearned(${idx})">
+                    </td>
                 </tr>
             `).join('');
         }
 
         function startQuiz() {
-            if(vocabulary.length < 1) return;
-            let limit = parseInt(document.getElementById('q-count-input').value) || vocabulary.length;
-            limit = Math.min(limit, vocabulary.length);
+            const availableVocab = vocabulary.filter(v => !v.learned);
+            if(availableVocab.length < 1) return;
+
+            let limit = parseInt(document.getElementById('q-count-input').value) || availableVocab.length;
+            limit = Math.min(limit, availableVocab.length);
             
             currentFeature = document.querySelector('input[name="q-feature"]:checked').value;
             currentMode = currentFeature === 'multi' 
                 ? document.querySelector('input[name="q-mode-multi"]:checked').value
                 : document.querySelector('input[name="q-mode-manual"]:checked').value;
-            quizPool = [...vocabulary].sort(() => Math.random() - 0.5).slice(0, limit);
+            quizPool = [...availableVocab].sort(() => Math.random() - 0.5).slice(0, limit);
             wrongAnswers = [];
             currentIndex = 0;
             totalCorrect = 0;
@@ -600,21 +754,11 @@
             
             document.getElementById('options').classList.toggle('hidden', currentFeature !== 'multi');
             document.getElementById('manual-input-area').classList.toggle('hidden', currentFeature !== 'manual');
-            
             if (currentFeature === 'manual') {
                 const input = document.getElementById('user-answer');
                 input.onkeydown = (e) => { 
-                    if (e.key === 'Enter') {
-                        if (!answered) {
-                            checkManualAnswer();
-                        }
-                    } 
-                    else if (e.code === 'Space') {
-                        if (answered) {
-                            e.preventDefault();
-                            nextQuestion();
-                        }
-                    }
+                    if (e.key === 'Enter') { if (!answered) checkManualAnswer(); } 
+                    else if (e.code === 'Space') { if (answered) { e.preventDefault(); nextQuestion(); } }
                 };
             }
             loadQuestion();
@@ -638,7 +782,6 @@
             document.getElementById('next-action').classList.add('invisible');
             document.getElementById('quiz-progress').innerText = `CÂU ${currentIndex + 1}/${quizPool.length}`;
             document.getElementById('quiz-round-tag').innerText = `Vòng ${roundNumber}`;
-            
             if (currentFeature === 'multi') {
                 let opts = [q];
                 let others = vocabulary.filter(v => v.h !== q.h).sort(() => Math.random() - 0.5);
@@ -653,7 +796,7 @@
                 const input = document.getElementById('user-answer');
                 input.value = '';
                 input.className = 'custom-input chinese-font text-center';
-                input.readOnly = false; // Sửa từ disabled thành readOnly
+                input.readOnly = false;
                 document.getElementById('input-hint').innerText = "* Nhấn Enter để kiểm tra";
                 document.getElementById('input-hint').className = "text-[10px] mt-3 italic text-center text-blue-500 font-medium";
                 setTimeout(() => input.focus(), 50);
@@ -665,15 +808,9 @@
             answered = true;
             const q = quizPool[currentIndex];
             const isCorrect = selectedH === q.h;
-            if(isCorrect) {
-                btn.classList.add('correct');
-                totalCorrect++;
-            } else {
-                btn.classList.add('wrong');
-                wrongAnswers.push(q);
-                document.querySelectorAll('.option-btn').forEach(b => {
-                    if(b.innerText === (currentMode === 'hz-vn' ? q.m : q.h)) b.classList.add('correct');
-                });
+            if(isCorrect) { btn.classList.add('correct'); totalCorrect++; } 
+            else { btn.classList.add('wrong'); wrongAnswers.push(q);
+                document.querySelectorAll('.option-btn').forEach(b => { if(b.innerText === (currentMode === 'hz-vn' ? q.m : q.h)) b.classList.add('correct'); });
             }
             showFeedback();
         }
@@ -683,20 +820,14 @@
             const input = document.getElementById('user-answer');
             const userVal = input.value.trim();
             if(!userVal) return;
-
             answered = true;
             const q = quizPool[currentIndex];
             const isCorrect = userVal === q.h;
-
-            input.readOnly = true; // Sửa từ disabled thành readOnly để nhận phím Space
-            if(isCorrect) {
-                input.classList.add('correct-input');
-                totalCorrect++;
+            input.readOnly = true;
+            if(isCorrect) { input.classList.add('correct-input'); totalCorrect++;
                 document.getElementById('input-hint').innerText = "Chính xác!";
                 document.getElementById('input-hint').className = "text-[10px] mt-3 italic text-center text-emerald-500 font-bold";
-            } else {
-                input.classList.add('wrong-input');
-                wrongAnswers.push(q);
+            } else { input.classList.add('wrong-input'); wrongAnswers.push(q);
                 document.getElementById('input-hint').innerText = "Sai rồi! Đáp án: " + q.h;
                 document.getElementById('input-hint').className = "text-[10px] mt-3 italic text-center text-red-500 font-bold";
             }
@@ -708,55 +839,156 @@
             document.getElementById('info-slot-1').innerText = "Đáp án chi tiết";
             document.getElementById('info-slot-2').innerText = q.p;
             document.getElementById('info-slot-2').className = "text-lg font-bold text-color-pinyin";
-            document.getElementById('info-slot-3').innerText = (currentMode.includes('vn') ? q.h : q.m);
-            document.getElementById('info-slot-3').className = "text-base font-medium " + (currentMode.includes('vn') ? "chinese-font text-color-hanzi" : "text-color-meaning");
-            
-            document.getElementById('q-info').classList.remove('hidden');
+            if (currentMode === 'vn-hz') {
+                document.getElementById('info-slot-3').innerText = q.h;
+                document.getElementById('info-slot-3').className = "text-base font-medium chinese-font text-color-hanzi"; 
+            } else {
+                document.getElementById('info-slot-3').innerText = q.m;
+                document.getElementById('info-slot-3').className = "text-base font-medium text-color-meaning"; 
+            }
+            document.getElementById('q-info').classList.remove('hidden'); 
             document.getElementById('next-action').classList.remove('invisible');
-            
-            const rate = Math.round((totalCorrect / (currentIndex + 1)) * 100);
-            document.getElementById('quiz-correct').innerText = totalCorrect;
+            const rate = Math.round((totalCorrect / (currentIndex + 1)) * 100); 
+            document.getElementById('quiz-correct').innerText = totalCorrect; 
             document.getElementById('quiz-rate').innerText = rate + "%";
         }
 
         function nextQuestion() {
             const q = quizPool[currentIndex];
             const isWrong = wrongAnswers.some(w => w.h === q.h);
-            if (isWrong) {
-                quizPool.push({...q});
-                wrongAnswers = wrongAnswers.filter(w => w.h !== q.h);
-            }
-
+            if (isWrong) { quizPool.push({...q}); wrongAnswers = wrongAnswers.filter(w => w.h !== q.h); }
             currentIndex++;
-            if(currentIndex < quizPool.length) {
-                loadQuestion();
-            } else {
-                showCompletion();
-            }
+            if(currentIndex < quizPool.length) { loadQuestion(); } else { showCompletion(); }
         }
 
         function showCompletion() {
             document.getElementById('question-card').classList.add('hidden');
             document.getElementById('quiz-controls').classList.add('hidden');
             document.getElementById('completion-status').classList.remove('hidden');
-            
             if(wrongAnswers.length > 0) {
                 document.getElementById('wrong-summary').classList.remove('hidden');
                 document.getElementById('wrong-list-box').innerHTML = [...new Set(wrongAnswers)].map(v => `
                     <div class="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm">
                         <span class="chinese-font font-bold text-color-hanzi">${v.h}</span>
                         <span class="text-[10px] text-custom-muted ml-1">${v.p}</span>
-                    </div>
-                `).join('');
-            } else {
-                document.getElementById('wrong-summary').classList.add('hidden');
-            }
+                    </div>`).join('');
+            } else { document.getElementById('wrong-summary').classList.add('hidden'); }
         }
 
         function resetToSetup() {
             document.getElementById('quiz-setup').classList.remove('hidden');
             document.getElementById('quiz-active').classList.add('hidden');
             document.getElementById('completion-status').classList.add('hidden');
+            document.getElementById('flashcard-setup').classList.remove('hidden');
+            document.getElementById('flashcard-active').classList.add('hidden');
+        }
+
+        // FLASHCARD LOGIC
+        function updateFlashFontSize(side, val) {
+            if(side === 'front') {
+                flashFrontSize = val;
+                document.getElementById('flash-front-val').innerText = val;
+            } else {
+                flashBackSize = val;
+                document.getElementById('flash-back-val').innerText = val;
+            }
+        }
+
+        function updateAutoTime(side, val) {
+            if(side === 'front') {
+                timeFront = parseInt(val);
+                document.getElementById('time-front-val').innerText = val;
+            } else {
+                timeBack = parseInt(val);
+                document.getElementById('time-back-val').innerText = val;
+            }
+        }
+
+        function startFlashcards() {
+            // Lọc các từ chưa thuộc và xáo trộn
+            quizPool = vocabulary.filter(v => !v.learned).sort(() => Math.random() - 0.5);
+            if(quizPool.length === 0) return;
+            currentIndex = 0;
+            document.getElementById('flashcard-setup').classList.add('hidden');
+            document.getElementById('flashcard-active').classList.remove('hidden');
+            loadFlashcard();
+        }
+
+        function loadFlashcard() {
+            const q = quizPool[currentIndex];
+            const inner = document.getElementById('flashcard-inner');
+            inner.classList.remove('is-flipped');
+            
+            document.getElementById('flash-h-front').innerText = q.h;
+            document.getElementById('flash-h-front').style.fontSize = flashFrontSize + 'px';
+            
+            document.getElementById('flash-h-back').innerText = q.h;
+            document.getElementById('flash-h-back').style.fontSize = (flashFrontSize * 0.8) + 'px';
+            
+            document.getElementById('flash-p').innerText = q.p;
+            document.getElementById('flash-p').style.fontSize = flashBackSize + 'px';
+            
+            document.getElementById('flash-m').innerText = q.m;
+            document.getElementById('flash-m').style.fontSize = (flashBackSize * 0.8) + 'px';
+
+            document.getElementById('flash-progress').innerText = `THẺ ${currentIndex + 1}/${quizPool.length}`;
+            
+            if (isAuto) {
+                autoTimer = setTimeout(() => {
+                    flipCard(); 
+                    autoTimer = setTimeout(() => {
+                        nextFlashcard(); 
+                    }, timeBack * 1000);
+                }, timeFront * 1000);
+            }
+        }
+
+        function flipCard() {
+            document.getElementById('flashcard-inner').classList.toggle('is-flipped');
+        }
+
+        function nextFlashcard() {
+            clearTimeout(autoTimer);
+            currentIndex++;
+            
+            // KIỂM TRA ĐIỀU KIỆN LẶP LẠI (LOOP)
+            if(currentIndex >= quizPool.length) {
+                // Xáo trộn lại danh sách để bắt đầu chu kỳ mới
+                quizPool = quizPool.sort(() => Math.random() - 0.5);
+                currentIndex = 0;
+                // Có thể thêm hiệu ứng nhỏ ở đây nếu muốn
+            }
+            
+            loadFlashcard();
+        }
+
+        // AUTO FLASHCARD LOGIC
+        function toggleAuto() {
+            isAuto = !isAuto;
+            const btn = document.getElementById('btn-auto-flash');
+            if (isAuto) {
+                btn.innerText = "AUTO: BẬT";
+                btn.className = "flex-1 bg-emerald-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-md transition-all";
+                const inner = document.getElementById('flashcard-inner');
+                if (!inner.classList.contains('is-flipped')) {
+                    autoTimer = setTimeout(() => {
+                        flipCard();
+                        autoTimer = setTimeout(() => nextFlashcard(), timeBack * 1000);
+                    }, timeFront * 1000);
+                }
+            } else {
+                stopAuto();
+            }
+        }
+
+        function stopAuto() {
+            isAuto = false;
+            clearTimeout(autoTimer);
+            const btn = document.getElementById('btn-auto-flash');
+            if (btn) {
+                btn.innerText = "AUTO: TẮT";
+                btn.className = "flex-1 bg-slate-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-md transition-all";
+            }
         }
     </script>
 </body>
