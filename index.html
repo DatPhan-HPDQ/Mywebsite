@@ -634,29 +634,20 @@
             applyColorStyles();
             renderTable();
             
-            // XỬ LÝ LỖI MẤT BÀN PHÍM TRÊN DI ĐỘNG
             const userInput = document.getElementById('user-answer');
             userInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
-                    e.preventDefault(); // Ngăn chặn browser tự đóng keyboard/submit mặc định
+                    e.preventDefault(); 
                     if (!answered) {
                         checkManualAnswer();
                     } else {
                         nextQuestion();
                     }
-                    // Focus lại lần nữa để chắc chắn
                     setTimeout(() => this.focus(), 10);
                 } else if (e.key === ' ' && answered) {
                     e.preventDefault();
                     nextQuestion();
                     setTimeout(() => this.focus(), 10);
-                }
-            });
-
-            // Ngăn phím Enter làm mất focus toàn cục
-            userInput.addEventListener('blur', function() {
-                if (!document.getElementById('quiz-active').classList.contains('hidden') && !document.getElementById('completion-status').classList.contains('hidden')) {
-                     // Nếu đang trong quiz, cố gắng giữ focus trừ khi thoát
                 }
             });
         };
@@ -881,8 +872,9 @@
                 qMain.innerText = q.m;
                 qMain.classList.add('text-color-meaning');
             } else if (currentMode === 'hz-hz') {
-                qMain.innerText = q.p;
-                qMain.classList.add('text-color-pinyin');
+                // CHỈNH SỬA TẠI ĐÂY: Hiển thị Hán tự thay vì Pinyin ở chế độ Hán tự - Hán tự
+                qMain.innerText = q.h;
+                qMain.classList.add('chinese-font', 'text-color-hanzi');
             }
 
             if (currentFeature === 'multi') {
@@ -895,7 +887,7 @@
                 userInput.value = '';
                 userInput.className = 'custom-input chinese-font text-center';
                 userInput.disabled = false;
-                setTimeout(() => userInput.focus(), 150); // Delay chút để chắc chắn UI đã ổn định
+                setTimeout(() => userInput.focus(), 150); 
             }
 
             updateProgress();
@@ -912,6 +904,8 @@
                 let text = "";
                 if (currentMode === 'hz-vn') text = choice.m;
                 else if (currentMode === 'vn-hz') text = choice.h;
+                // Nếu có chế độ trắc nghiệm hz-hz (dù ít dùng) cũng để mặc định hiện nghĩa/pinyin
+                else text = choice.m; 
                 return `<div class="option-btn" onclick="checkMultiAnswer(this, '${choice.h}')" style="font-size: ${aFontSize}px">${text}</div>`;
             }).join('');
         }
@@ -954,7 +948,6 @@
             }
             
             showAnswerInfo();
-            // Cực kỳ quan trọng: Giữ focus ngay sau khi nộp bài để bàn phím không ẩn
             userInput.focus();
         }
 
