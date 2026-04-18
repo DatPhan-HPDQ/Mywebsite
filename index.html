@@ -518,7 +518,7 @@
                         <div class="bg-custom-card p-5 rounded-2xl border shadow-sm">
                             <label class="text-[10px] font-bold text-custom-muted uppercase mb-2 block">Gõ Hán tự đáp án:</label>
                             <input type="text" id="user-answer" class="custom-input chinese-font text-center" placeholder="..." autocomplete="off">
-                            <p id="input-hint" class="text-[10px] text-blue-500 mt-3 italic text-center font-medium">Nhấn Enter để kiểm tra</p>
+                            <p id="input-hint" class="text-[10px] text-blue-500 mt-3 italic text-center font-medium">Nhấn Enter để kiểm tra / Space để qua câu</p>
                         </div>
                     </div>
                 </div>
@@ -634,21 +634,29 @@
             applyColorStyles();
             renderTable();
             
-            // Sửa lỗi phím trên di động cho chế độ tự luận
-            document.getElementById('user-answer').addEventListener('keydown', (e) => {
+            // XỬ LÝ LỖI MẤT BÀN PHÍM TRÊN DI ĐỘNG
+            const userInput = document.getElementById('user-answer');
+            userInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
+                    e.preventDefault(); // Ngăn chặn browser tự đóng keyboard/submit mặc định
                     if (!answered) {
                         checkManualAnswer();
                     } else {
                         nextQuestion();
                     }
-                    // Ngăn chặn hành vi mặc định và giữ focus
-                    e.preventDefault();
-                    document.getElementById('user-answer').focus();
+                    // Focus lại lần nữa để chắc chắn
+                    setTimeout(() => this.focus(), 10);
                 } else if (e.key === ' ' && answered) {
-                    // Nếu đã trả lời rồi mà nhấn Space thì qua câu mới
-                    nextQuestion();
                     e.preventDefault();
+                    nextQuestion();
+                    setTimeout(() => this.focus(), 10);
+                }
+            });
+
+            // Ngăn phím Enter làm mất focus toàn cục
+            userInput.addEventListener('blur', function() {
+                if (!document.getElementById('quiz-active').classList.contains('hidden') && !document.getElementById('completion-status').classList.contains('hidden')) {
+                     // Nếu đang trong quiz, cố gắng giữ focus trừ khi thoát
                 }
             });
         };
@@ -887,7 +895,7 @@
                 userInput.value = '';
                 userInput.className = 'custom-input chinese-font text-center';
                 userInput.disabled = false;
-                setTimeout(() => userInput.focus(), 100);
+                setTimeout(() => userInput.focus(), 150); // Delay chút để chắc chắn UI đã ổn định
             }
 
             updateProgress();
@@ -937,7 +945,6 @@
             const val = userInput.value.trim();
             const isCorrect = (val === q.h);
 
-            userInput.disabled = true;
             if (isCorrect) {
                 userInput.classList.add('correct-input');
                 totalCorrect++;
@@ -947,11 +954,8 @@
             }
             
             showAnswerInfo();
-            // Quan trọng: Giữ bàn phím luôn hiện bằng cách focus lại (nếu cần gõ cho câu sau)
-            setTimeout(() => {
-                userInput.disabled = false; 
-                userInput.focus();
-            }, 50);
+            // Cực kỳ quan trọng: Giữ focus ngay sau khi nộp bài để bàn phím không ẩn
+            userInput.focus();
         }
 
         function showAnswerInfo() {
