@@ -41,35 +41,67 @@
             font-family: 'Noto Sans SC', sans-serif;
         }
 
-        .q-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            min-height: 140px;
-            margin-bottom: 24px;
-            transition: all 0.3s ease;
-        }
+        /* Khung chứa chính */
+.q-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 100px;
+    margin-bottom: 16px;
+    transition: all 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
 
-        .q-content-left {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-            flex: 1;
-        }
+/* Container chứa nội dung */
+.q-content-left {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    width: 100%;
+    transition: all 0.3s ease; /* Hiệu ứng chuyển động khi hiện đáp án */
+}
 
-        #q-main-text { line-height: 1.2; }
+/* PHẦN CÂU HỎI */
+#q-main-text {
+    flex: 0 0 100%;       /* Mặc định chiếm 100% */
+    width: 100%;
+    text-align: center;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    white-space: normal;
+    word-wrap: break-word;
+}
 
-        .q-details {
-            display: flex;
-            flex-direction: column;
-            border-left: 3px solid var(--border-color);
-            padding-left: 20px;
-            gap: 4px;
-        }
+/* Khi phần chi tiết (đáp án) hiện ra (không còn class .hidden) 
+   thì câu hỏi tự động co lại còn 50% */
+.q-content-left:not(:has(.hidden)) #q-main-text {
+    flex: 0 0 50%;
+    width: 50%;
+    padding-right: 15px;
+}
+
+/* PHẦN ĐÁP ÁN */
+.q-details {
+    flex: 0 0 50%;       /* Khi hiện ra sẽ chiếm đúng 50% */
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    border-left: 2px solid var(--border-color);
+    padding-left: 15px;
+    gap: 2px;
+    box-sizing: border-box;
+    justify-content: center;
+}
+
+/* Đảm bảo khi ẩn thì không chiếm diện tích để câu hỏi tràn ra 100% */
+.q-details.hidden {
+    display: none !important;
+}
 
         .btn-next-inline {
             background: #3b82f6;
@@ -324,7 +356,7 @@
                                 <label class="text-[11px] font-bold text-custom-muted uppercase tracking-wider">Zoom Toàn Trang</label>
                                 <span id="page-zoom-val" class="text-xs font-bold text-orange-500">100%</span>
                             </div>
-                            <input type="range" id="page-zoom-slider" min="50" max="100" value="100" oninput="updatePageZoom(this.value)" class="w-full">
+                            <input type="range" id="page-zoom-slider" min="50" max="150" value="100" oninput="updatePageZoom(this.value)" class="w-full">
                         </div>
                     </div>
 
@@ -514,7 +546,7 @@
                         <div class="bg-custom-card p-5 rounded-2xl border shadow-sm">
                             <label class="text-[10px] font-bold text-custom-muted uppercase mb-2 block">Gõ Hán tự đáp án:</label>
                             <input type="text" id="user-answer" class="custom-input chinese-font text-center" placeholder="..." autocomplete="off">
-                            <p id="input-hint" class="text-[10px] text-blue-500 mt-3 italic text-center font-medium">Nhấn Enter để kiểm tra / Space để qua câu</p>
+                            <p id="input-hint" class="text-[10px] text-blue-500 mt-3 italic text-center font-medium">Nhấn Enter để kiểm tra / Enter or Space để chuyển câu</p>
                         </div>
                     </div>
                 </div>
@@ -955,16 +987,22 @@
         }
 
         function showDetails(item) {
-            const qInfo = document.getElementById('q-info');
-            qInfo.classList.remove('hidden');
-            document.getElementById('info-slot-1').innerText = "ĐÁP ÁN ĐÚNG";
-            document.getElementById('info-slot-2').innerText = item.h;
-            document.getElementById('info-slot-2').className = "text-color-hanzi chinese-font font-bold";
-            document.getElementById('info-slot-2').style.fontSize = ansFontSize + 'px';
-            document.getElementById('info-slot-3').innerText = `${item.p} | ${item.m}`;
-            document.getElementById('info-slot-3').style.fontSize = Math.max(12, ansFontSize - 6) + 'px';
-            document.getElementById('next-action').classList.remove('invisible');
-        }
+    const qInfo = document.getElementById('q-info');
+    qInfo.classList.remove('hidden');
+    document.getElementById('info-slot-1').innerText = "ĐÁP ÁN ĐÚNG";
+    document.getElementById('info-slot-2').innerText = item.h;
+    document.getElementById('info-slot-2').className = "text-color-hanzi chinese-font font-bold";
+    document.getElementById('info-slot-2').style.fontSize = ansFontSize + 'px';
+    
+    // Giữ nguyên dòng này của bạn
+    document.getElementById('info-slot-3').innerText = `${item.p} | ${item.m}`;
+    document.getElementById('info-slot-3').style.fontSize = Math.max(12, ansFontSize - 6) + 'px';
+    
+    // BỔ SUNG: Dùng innerHTML để gán màu dựa trên class bạn đã cài đặt
+    document.getElementById('info-slot-3').innerHTML = `<span class="text-color-pinyin">${item.p}</span> | <span class="text-color-meaning">${item.m}</span>`;
+    
+    document.getElementById('next-action').classList.remove('invisible');
+}
 
         function updateStats() {
             document.getElementById('quiz-correct').innerText = totalCorrect;
@@ -1041,7 +1079,7 @@
             front.innerText = item.h;
             front.style.fontSize = flashFrontSize + 'px';
             backH.innerText = item.h;
-            backH.style.fontSize = Math.max(20, flashBackSize) + 'px';
+            backH.style.fontSize = Math.max(20, flashFrontSize) + 'px';
             backP.innerText = item.p;
             backP.style.fontSize = flashBackSize + 'px';
             backM.innerText = item.m;
