@@ -41,83 +41,81 @@
             font-family: 'Noto Sans SC', sans-serif;
         }
 
-        /* Khung chứa chính */
-.q-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 12px 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 100px;
-    margin-bottom: 16px;
-    transition: all 0.3s ease;
-    width: 100%;
-    box-sizing: border-box;
-}
+        .q-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 120px;
+            margin-bottom: 24px;
+            transition: all 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
 
-/* Container chứa nội dung */
-.q-content-left {
-    display: flex;
-    align-items: center;
-    flex: 1;
-    width: 100%;
-    transition: all 0.3s ease; /* Hiệu ứng chuyển động khi hiện đáp án */
-}
+        .q-content-left {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
 
-/* PHẦN CÂU HỎI */
-#q-main-text {
-    flex: 0 0 100%;       /* Mặc định chiếm 100% */
-    width: 100%;
-    text-align: center;
-    font-weight: 700;
-    transition: all 0.3s ease;
-    white-space: normal;
-    word-wrap: break-word;
-}
+        #q-main-text {
+            flex: 0 0 100%;
+            width: 100%;
+            text-align: center;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            white-space: normal;
+            word-wrap: break-word;
+        }
 
-/* Khi phần chi tiết (đáp án) hiện ra (không còn class .hidden) 
-   thì câu hỏi tự động co lại còn 50% */
-.q-content-left:not(:has(.hidden)) #q-main-text {
-    flex: 0 0 50%;
-    width: 50%;
-    padding-right: 15px;
-}
+        .q-content-left:not(:has(.hidden)) #q-main-text {
+            flex: 0 0 50%;
+            width: 50%;
+            padding-right: 15px;
+        }
 
-/* PHẦN ĐÁP ÁN */
-.q-details {
-    flex: 0 0 50%;       /* Khi hiện ra sẽ chiếm đúng 50% */
-    width: 50%;
-    display: flex;
-    flex-direction: column;
-    border-left: 2px solid var(--border-color);
-    padding-left: 15px;
-    gap: 2px;
-    box-sizing: border-box;
-    justify-content: center;
-}
+        .q-details {
+            flex: 0 0 50%;
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            border-left: 2px solid var(--border-color);
+            padding-left: 15px;
+            gap: 2px;
+            box-sizing: border-box;
+            justify-content: center;
+        }
 
-/* Đảm bảo khi ẩn thì không chiếm diện tích để câu hỏi tràn ra 100% */
-.q-details.hidden {
-    display: none !important;
-}
+        .q-details.hidden {
+            display: none !important;
+        }
 
-        .btn-next-inline {
+        /* Nút chuyển câu mới: Rộng và nằm dưới */
+        .btn-next-full {
             background: #3b82f6;
             color: white;
-            width: 54px;
-            height: 54px;
-            border-radius: 12px;
+            width: 100%;
+            padding: 16px;
+            border-radius: 16px;
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
             transition: all 0.2s;
-            margin-left: 16px;
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            border: none;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 13px;
         }
-        .btn-next-inline:hover { background: #2563eb; transform: scale(1.05); }
+        .btn-next-full:hover { background: #2563eb; transform: scale(1.01); }
 
         .option-grid {
             display: grid;
@@ -316,6 +314,7 @@
             </div>
             <h1 class="font-bold text-base tracking-tight uppercase">HSK Master</h1>
         </div>
+ 
         <div class="flex items-center gap-3">
             <button onclick="toggleDarkMode()" class="dark-mode-toggle">
                 <i id="theme-icon" class="fa-solid fa-moon"></i>
@@ -330,6 +329,7 @@
 
     <main class="max-w-2xl mx-auto">
         <div id="tab-data" class="space-y-4">
+         
             <div class="bg-custom-card p-5 rounded-2xl border shadow-sm">
                 <label class="text-[11px] font-bold text-custom-muted uppercase tracking-wider mb-2 block">Dán dữ liệu từ Excel (Hán tự - Pinyin - Nghĩa)</label>
                 <textarea id="bulk-input" rows="4" class="custom-input text-sm" placeholder="Ví dụ: 你好 - nǐhǎo - Xin chào"></textarea>
@@ -344,7 +344,7 @@
             <div class="bg-custom-card p-5 rounded-2xl border shadow-sm space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="space-y-3">
-                        <div>
+                         <div>
                             <div class="flex justify-between items-center mb-3">
                                 <label class="text-[11px] font-bold text-custom-muted uppercase tracking-wider">Cỡ chữ Bảng</label>
                                 <span id="table-font-size-val" class="text-xs font-bold text-blue-500">14px</span>
@@ -382,7 +382,7 @@
                 <div class="pt-4 border-t border-slate-700/10">
                     <label class="text-[11px] font-bold text-custom-muted uppercase tracking-wider mb-3 block">Màu sắc hiển thị</label>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <div class="color-picker-container">
+                         <div class="color-picker-container">
                             <input type="color" id="color-hanzi" value="#ef4444" oninput="updateColors()" class="w-6 h-6 p-0 border-none rounded bg-transparent cursor-pointer">
                             <label class="text-[10px] font-bold text-custom-muted uppercase">Hán tự</label>
                         </div>
@@ -533,15 +533,18 @@
                             <span id="info-slot-3" class="text-base"></span>
                         </div>
                     </div>
-                    <div id="next-action" class="invisible">
-                        <button onclick="nextQuestion()" class="btn-next-inline">
-                            <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-                    </div>
                 </div>
 
                 <div id="quiz-controls">
                     <div id="options" class="option-grid"></div>
+                    
+                    <div id="next-action" class="invisible mt-6">
+                        <button onclick="nextQuestion()" class="btn-next-full">
+                            <span>CÂU TIẾP THEO</span>
+                            <i class="fa-solid fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+
                     <div id="manual-input-area" class="hidden space-y-4">
                         <div class="bg-custom-card p-5 rounded-2xl border shadow-sm">
                             <label class="text-[10px] font-bold text-custom-muted uppercase mb-2 block">Gõ Hán tự đáp án:</label>
@@ -734,35 +737,31 @@
             let styleEl = document.getElementById(styleId) || document.createElement('style');
             styleEl.id = styleId;
             styleEl.innerHTML = `
-                .hanzi-cell, .text-color-hanzi, .q-hanzi-extra, #q-main-text.text-color-hanzi, #flash-h-front, #flash-h-back { color: ${colors.hanzi} !important; font-weight: ${weights.hanzi} !important; }
-                .pinyin-cell, .text-color-pinyin, .q-pinyin, #flash-p { color: ${colors.pinyin} !important; font-weight: ${weights.pinyin} !important; }
-                .meaning-cell, .text-color-meaning, .q-meaning, #q-main-text.text-color-meaning, #flash-m { color: ${colors.meaning} !important; font-weight: ${weights.meaning} !important; }
+                .hanzi-cell, .text-color-hanzi, .q-hanzi-extra, #q-main-text.text-color-hanzi, #flash-h-front, #flash-h-back { color: ${colors.hanzi} !important;
+                font-weight: ${weights.hanzi} !important; }
+                .pinyin-cell, .text-color-pinyin, .q-pinyin, #flash-p { color: ${colors.pinyin} !important;
+                font-weight: ${weights.pinyin} !important; }
+                .meaning-cell, .text-color-meaning, .q-meaning, #q-main-text.text-color-meaning, #flash-m { color: ${colors.meaning} !important;
+                font-weight: ${weights.meaning} !important; }
                 .option-btn, #user-answer { font-weight: ${weights.hanzi}; }
             `;
             if (!document.getElementById(styleId)) document.head.appendChild(styleEl);
         }
 
-        /* --- PHẦN ĐÃ SỬA LỖI NHẬP DỮ LIỆU --- */
         function saveData() {
             const input = document.getElementById('bulk-input').value.trim();
             if (!input) {
                 alert("Hãy dán dữ liệu vào ô trống!");
                 return;
             }
-
             const rows = input.split(/\r?\n/);
             const newVocabulary = [];
-
             rows.forEach((row, index) => {
                 if (!row.trim()) return;
-
-                // Tách cột theo Tab (khi dán từ Excel) hoặc dấu gạch ngang (theo ví dụ)
                 let cols = row.split('\t');
                 if (cols.length < 2) {
                     cols = row.split(' - ');
                 }
-
-                // Làm sạch dữ liệu từng ô
                 const cleanCols = cols.map(c => {
                     let text = c.trim();
                     if (text.startsWith('"') && text.endsWith('"')) {
@@ -770,7 +769,6 @@
                     }
                     return text;
                 });
-
                 if (cleanCols[0]) {
                     newVocabulary.push({
                         h: cleanCols[0],
@@ -781,12 +779,10 @@
                     });
                 }
             });
-
             if (newVocabulary.length > 0) {
                 vocabulary = newVocabulary;
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(vocabulary));
                 renderTable();
-               
             } else {
                 alert("Không nhận diện được dữ liệu. Hãy đảm bảo dữ liệu có ít nhất 2 cột.");
             }
@@ -842,7 +838,6 @@
             }
         }
 
-        /* --- PHẦN GIỮ NGUYÊN LOGIC LUYỆN TẬP VÀ FLASHCARD --- */
         function toggleModeOptions() {
             const feature = document.querySelector('input[name="q-feature"]:checked').value;
             document.getElementById('multi-modes').classList.toggle('hidden', feature !== 'multi');
@@ -863,7 +858,6 @@
             const countInput = document.getElementById('q-count-input').value;
             const available = vocabulary.filter(v => !v.learned);
             if (available.length < 1) return alert("Danh sách trống hoặc đã thuộc hết!");
-            
             const count = Math.min(parseInt(countInput) || 10, available.length);
             quizPool = [...available].sort(() => Math.random() - 0.5).slice(0, count);
             
@@ -874,56 +868,64 @@
                 currentMode = document.querySelector('input[name="q-mode-manual"]:checked').value;
             }
 
-            currentIndex = 0; totalCorrect = 0; totalAttempts = 0; roundNumber = 1;
+            currentIndex = 0; totalCorrect = 0;
+            totalAttempts = 0; roundNumber = 1;
             document.getElementById('quiz-setup').classList.add('hidden');
             document.getElementById('quiz-active').classList.remove('hidden');
             loadQuestion();
         }
 
         function loadQuestion() {
-            answered = false;
-            const current = quizPool[currentIndex];
-            const qMain = document.getElementById('q-main-text');
-            const qInfo = document.getElementById('q-info');
-            const nextAction = document.getElementById('next-action');
-            
-            qMain.style.fontSize = qFontSize + 'px';
-            qInfo.classList.add('hidden');
-            nextAction.classList.add('invisible');
-            
-            document.getElementById('quiz-progress').innerText = `CÂU ${currentIndex + 1}/${quizPool.length}`;
-            document.getElementById('quiz-round-tag').innerText = `Vòng ${roundNumber}`;
+    answered = false;
+    const current = quizPool[currentIndex];
+    const qMain = document.getElementById('q-main-text');
+    const qInfo = document.getElementById('q-info');
+    const nextAction = document.getElementById('next-action');
 
-            if (currentMode === 'hz-vn') {
-                qMain.innerText = current.h;
-                qMain.className = "chinese-font text-color-hanzi";
-            } else if (currentMode === 'vn-hz') {
-                qMain.innerText = current.m;
-                qMain.className = "text-color-meaning font-bold text-center w-full";
-            } else if (currentMode === 'hz-hz') {
-    qMain.innerText = current.h; // ✅ hiển thị HÁN TỰ
-    qMain.className = "chinese-font text-color-hanzi text-center w-full";
+    qMain.style.fontSize = qFontSize + 'px';
+    qInfo.classList.add('hidden');
+    nextAction.classList.add('invisible');
+    
+    document.getElementById('quiz-progress').innerText = `CÂU ${currentIndex + 1}/${quizPool.length}`;
+    document.getElementById('quiz-round-tag').innerText = `Vòng ${roundNumber}`;
+
+    if (currentMode === 'hz-vn') {
+        qMain.innerText = current.h;
+        qMain.className = "chinese-font text-color-hanzi";
+    } else if (currentMode === 'vn-hz') {
+        qMain.innerText = current.m;
+        qMain.className = "text-color-meaning font-bold text-center w-full";
+    } else if (currentMode === 'hz-hz') {
+        qMain.innerText = current.h;
+        qMain.className = "chinese-font text-color-hanzi text-center w-full";
+    }
+
+    if (currentFeature === 'multi') {
+        document.getElementById('options').classList.remove('hidden');
+        document.getElementById('manual-input-area').classList.add('hidden');
+        generateOptions(current);
+
+        // FIX POSITION BUTTON (trắc nghiệm giữ nguyên)
+        document.getElementById('options').after(nextAction);
+
+    } else {
+        document.getElementById('options').classList.add('hidden');
+        document.getElementById('manual-input-area').classList.remove('hidden');
+
+        const uInput = document.getElementById('user-answer');
+        uInput.value = '';
+        uInput.className = 'custom-input chinese-font text-center';
+        uInput.style.fontSize = aFontSize + 'px';
+        setTimeout(() => uInput.focus(), 100);
+
+        // FIX POSITION BUTTON (tự luận đưa xuống dưới input)
+        document.getElementById('manual-input-area').appendChild(nextAction);
+    }
 }
-
-            if (currentFeature === 'multi') {
-                document.getElementById('options').classList.remove('hidden');
-                document.getElementById('manual-input-area').classList.add('hidden');
-                generateOptions(current);
-            } else {
-                document.getElementById('options').classList.add('hidden');
-                document.getElementById('manual-input-area').classList.remove('hidden');
-                const uInput = document.getElementById('user-answer');
-                uInput.value = '';
-                uInput.className = 'custom-input chinese-font text-center';
-                uInput.style.fontSize = aFontSize + 'px';
-                setTimeout(() => uInput.focus(), 100);
-            }
-        }
 
         function generateOptions(correctItem) {
             const container = document.getElementById('options');
             container.innerHTML = '';
-            
             const others = vocabulary.filter(v => v.h !== correctItem.h);
             const picks = others.sort(() => Math.random() - 0.5).slice(0, 3);
             const choices = [...picks, correctItem].sort(() => Math.random() - 0.5);
@@ -932,13 +934,11 @@
                 const btn = document.createElement('div');
                 btn.className = 'option-btn';
                 btn.style.fontSize = aFontSize + 'px';
-                
                 if (currentMode === 'hz-vn') btn.innerText = item.m;
                 else if (currentMode === 'vn-hz') {
                     btn.innerText = item.h;
                     btn.classList.add('chinese-font');
                 }
-
                 btn.onclick = () => checkMultiAnswer(item, btn);
                 container.appendChild(btn);
             });
@@ -949,7 +949,6 @@
             answered = true;
             totalAttempts++;
             const correct = quizPool[currentIndex];
-            
             if (selected.h === correct.h) {
                 btn.classList.add('correct');
                 totalCorrect++;
@@ -969,12 +968,10 @@
             const uInput = document.getElementById('user-answer');
             const answer = uInput.value.trim();
             if (!answer) return;
-
             answered = true;
             totalAttempts++;
             const correct = quizPool[currentIndex];
             const isCorrect = (answer === correct.h);
-
             if (isCorrect) {
                 uInput.classList.add('correct-input');
                 totalCorrect++;
@@ -987,30 +984,24 @@
         }
 
         function showDetails(item) {
-    const qInfo = document.getElementById('q-info');
-    qInfo.classList.remove('hidden');
-    document.getElementById('info-slot-1').innerText = "ĐÁP ÁN ĐÚNG";
-    document.getElementById('info-slot-2').innerText = item.h;
-    document.getElementById('info-slot-2').className = "text-color-hanzi chinese-font font-bold";
-    document.getElementById('info-slot-2').style.fontSize = ansFontSize + 'px';
-    
-    // Giữ nguyên dòng này của bạn
-    document.getElementById('info-slot-3').innerText = `${item.p} | ${item.m}`;
-    document.getElementById('info-slot-3').style.fontSize = Math.max(12, ansFontSize - 6) + 'px';
-    
-    // BỔ SUNG: Dùng innerHTML để gán màu dựa trên class bạn đã cài đặt
-    document.getElementById('info-slot-3').innerHTML = `<span class="text-color-pinyin">${item.p}</span> | <span class="text-color-meaning">${item.m}</span>`;
-    
-    document.getElementById('next-action').classList.remove('invisible');
-}
+            const qInfo = document.getElementById('q-info');
+            qInfo.classList.remove('hidden');
+            document.getElementById('info-slot-1').innerText = "ĐÁP ÁN ĐÚNG";
+            document.getElementById('info-slot-2').innerText = item.h;
+            document.getElementById('info-slot-2').className = "text-color-hanzi chinese-font font-bold";
+            document.getElementById('info-slot-2').style.fontSize = ansFontSize + 'px';
+            document.getElementById('info-slot-3').innerHTML = `<span class="text-color-pinyin">${item.p}</span> | <span class="text-color-meaning">${item.m}</span>`;
+            document.getElementById('info-slot-3').style.fontSize = Math.max(12, ansFontSize - 6) + 'px';
+            document.getElementById('next-action').classList.remove('invisible');
+        }
 
         function updateStats() {
             document.getElementById('quiz-correct').innerText = totalCorrect;
             const totalAnswered = currentIndex + (answered ? 1 : 0);
-            const rate = totalAnswered > 0 ?
-                Math.round((totalCorrect / totalAnswered) * 100) : 0;
+            const rate = totalAnswered > 0 ? Math.round((totalCorrect / totalAnswered) * 100) : 0;
             document.getElementById('quiz-rate').innerText = rate + '%';
         }
+
         function nextQuestion() {
             currentIndex++;
             if (currentIndex < quizPool.length) {
@@ -1021,25 +1012,22 @@
         }
 
         function finishRound() {
-    if (wrongAnswers.length > 0) {
-        quizPool = [...wrongAnswers].sort(() => Math.random() - 0.5);
-        wrongAnswers = [];
-        currentIndex = 0;
-        roundNumber++;
-
-        // ✅ RESET THỐNG KÊ VÒNG MỚI
-        totalCorrect = 0;
-        totalAttempts = 0;
-        document.getElementById('quiz-correct').innerText = 0;
-        document.getElementById('quiz-rate').innerText = '0%';
-
-        loadQuestion();
-    } else {
-        document.getElementById('quiz-controls').classList.add('hidden');
-        document.getElementById('question-card').classList.add('hidden');
-        document.getElementById('completion-status').classList.remove('hidden');
-    }
-}
+            if (wrongAnswers.length > 0) {
+                quizPool = [...wrongAnswers].sort(() => Math.random() - 0.5);
+                wrongAnswers = [];
+                currentIndex = 0;
+                roundNumber++;
+                totalCorrect = 0;
+                totalAttempts = 0;
+                document.getElementById('quiz-correct').innerText = 0;
+                document.getElementById('quiz-rate').innerText = '0%';
+                loadQuestion();
+            } else {
+                document.getElementById('quiz-controls').classList.add('hidden');
+                document.getElementById('question-card').classList.add('hidden');
+                document.getElementById('completion-status').classList.remove('hidden');
+            }
+        }
 
         function resetToSetup() {
             document.getElementById('quiz-setup').classList.remove('hidden');
