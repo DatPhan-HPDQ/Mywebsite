@@ -29,7 +29,7 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Times New Roman', Times, serif;
             background-color: var(--bg-body);
             color: var(--text-main);
             transition: background-color 0.3s, color 0.3s;
@@ -38,9 +38,15 @@
         }
 
         .chinese-font {
-            font-family: "STSong", "SimSun", "NSimSun", "Songti SC", "Times New Roman", serif;
+        font-family: "STKaiti", "KaiTi", "Kaiti SC", "DFKai-SB", cursive;
+        line-height: 0.9; /* thêm dòng này */ 
         }
-
+        
+        .text-color-pinyin,
+        .text-color-meaning {
+        line-height: 1.1;
+        }
+ 
         .q-card {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -260,7 +266,7 @@
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 20px;
-            padding: 24px;
+            padding: 10px;
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
         }
         .flashcard-front { flex-direction: column; align-items: center; justify-content: center; }
@@ -269,7 +275,7 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             align-items: center;
-            gap: 20px;
+            gap: 10px;
         }
         .back-divider {
             height: 80%;
@@ -572,7 +578,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="setting-item-box">
                         <label class="text-[11px] font-bold text-custom-muted uppercase mb-3 block">Cỡ chữ Mặt trước (Hán tự)</label>
-                        <input type="range" min="10" max="100" value="60" oninput="updateFlashFontSize('front', this.value)" class="w-full">
+                        <input type="range" min="10" max="150" value="100" oninput="updateFlashFontSize('front', this.value)" class="w-full">
                         <div class="text-right text-xs font-bold text-blue-500 mt-1"><span id="flash-front-val">60</span>px</div>
                     </div>
                     <div class="setting-item-box">
