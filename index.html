@@ -38,7 +38,7 @@
         }
 
         .chinese-font {
-            font-family: 'Noto Sans SC', sans-serif;
+            font-family: "STSong", "SimSun", "NSimSun", "Songti SC", "Times New Roman", serif;
         }
 
         .q-card {
@@ -365,7 +365,7 @@
                          <div class="space-y-3">
                              <div class="flex items-center gap-2">
                                  <span class="text-[9px] font-bold text-custom-muted w-12">HÁN TỰ</span>
-                                 <input type="range" min="100" max="900" step="100" value="400" oninput="updateWeight('hanzi', this.value)" class="flex-1">
+                                 <input type="range" min="100" max="900" step="50" value="450" oninput="updateWeight('hanzi', this.value)" class="flex-1">
                              </div>
                              <div class="flex items-center gap-2">
                                  <span class="text-[9px] font-bold text-custom-muted w-12">PINYIN</span>
@@ -477,21 +477,21 @@
                                 <label class="text-[11px] font-bold text-custom-muted uppercase tracking-wider">Cỡ chữ câu hỏi</label>
                                 <span id="q-font-size-val" class="text-xs font-bold text-blue-500">32px</span>
                             </div>
-                            <input type="range" id="q-font-size-slider" min="10" max="120" value="30" oninput="updateQFontSize(this.value)" class="w-full">
+                            <input type="range" id="q-font-size-slider" min="10" max="120" value="100" oninput="updateQFontSize(this.value)" class="w-full">
                         </div>
                         <div class="setting-item-box">
                             <div class="flex justify-between items-center mb-3">
                                 <label class="text-[11px] font-bold text-custom-muted uppercase tracking-wider">Cỡ chữ trả lời</label>
                                 <span id="a-font-size-val" class="text-xs font-bold text-emerald-500">16px</span>
                             </div>
-                            <input type="range" id="a-font-size-slider" min="10" max="80" value="20" oninput="updateAFontSize(this.value)" class="w-full">
+                            <input type="range" id="a-font-size-slider" min="10" max="80" value="40" oninput="updateAFontSize(this.value)" class="w-full">
                         </div>
                         <div class="setting-item-box">
                             <div class="flex justify-between items-center mb-3">
                                 <label class="text-[11px] font-bold text-custom-muted uppercase tracking-wider">Cỡ chữ đáp án</label>
                                 <span id="ans-font-size-val" class="text-xs font-bold text-orange-500">20px</span>
                             </div>
-                            <input type="range" id="ans-font-size-slider" min="10" max="80" value="20" oninput="updateAnsFontSize(this.value)" class="w-full">
+                            <input type="range" id="ans-font-size-slider" min="10" max="80" value="40" oninput="updateAnsFontSize(this.value)" class="w-full">
                         </div>
                     </div>
 
@@ -991,7 +991,7 @@
             document.getElementById('info-slot-2').className = "text-color-hanzi chinese-font font-bold";
             document.getElementById('info-slot-2').style.fontSize = ansFontSize + 'px';
             document.getElementById('info-slot-3').innerHTML = `<span class="text-color-pinyin">${item.p}</span> | <span class="text-color-meaning">${item.m}</span>`;
-            document.getElementById('info-slot-3').style.fontSize = Math.max(12, ansFontSize - 6) + 'px';
+            document.getElementById('info-slot-3').style.fontSize = Math.max(12, ansFontSize - 10) + 'px';
             document.getElementById('next-action').classList.remove('invisible');
         }
 
