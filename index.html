@@ -312,10 +312,9 @@
         </div>
  
         <div class="flex items-center gap-3">
-            <div id="flash-audio-controls" class="hidden flex items-center gap-2">
-                <button onclick="speakCurrentFlash()" class="icon-btn-40" title="Phát âm thanh">
-                <i class="fa-solid fa-ear-listen"></i>
-                   
+            <div id="global-audio-controls" class="hidden flex items-center gap-2">
+                <button onclick="speakCurrentItem()" class="icon-btn-40" title="Phát âm thanh">
+                    <i class="fa-solid fa-ear-listen"></i>
                 </button>
                 <button id="btn-mute-toggle" onclick="toggleMute()" class="icon-btn-40" title="Tắt tự động phát">
                     <i class="fa-solid fa-volume-xmark"></i>
@@ -334,7 +333,6 @@
     </div>
 
     <main class="max-w-2xl mx-auto">
-  
         <div id="tab-data" class="space-y-4">
             <div class="bg-custom-card p-5 rounded-2xl border shadow-sm">
                 <label class="text-[11px] font-bold text-custom-muted uppercase tracking-wider mb-2 block">Dán dữ liệu từ Excel (Hán tự - Pinyin - Nghĩa)</label>
@@ -632,9 +630,10 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="flex gap-3">
                     <button onclick="stopAuto(); showFlashcardSetup();" class="flex-1 bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-md transition-all">Thoát</button>
-                    <button id="btn-auto-flash" onclick="toggleAuto()" class="flex-1 bg-emerald-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-md transition-all">AUTO: TẮT</button>
+                    <button id="btn-auto-flash" onclick="toggleAuto()" class="flex-1 bg-slate-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-md transition-all">AUTO: TẮT</button>
                     <button onclick="stopAuto(); nextFlashcard();" class="flex-[2] bg-blue-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-md">Thẻ tiếp theo</button>
                 </div>
             </div>
@@ -652,7 +651,7 @@
 
         let vocabulary = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
         let colors = JSON.parse(localStorage.getItem(COLOR_KEY)) || { hanzi: '#ef4444', pinyin: '#22c55e', meaning: '#3b82f6' };
-        let weights = JSON.parse(localStorage.getItem(WEIGHT_KEY)) || { hanzi: 400, pinyin: 400, meaning: 400 };
+        let weights = JSON.parse(localStorage.getItem(WEIGHT_KEY)) || { hanzi: 450, pinyin: 400, meaning: 400 };
         let pageZoom = localStorage.getItem(ZOOM_KEY) || 100;
         let isMuted = localStorage.getItem(MUTE_KEY) === 'true';
         let audioVolume = localStorage.getItem(VOLUME_KEY) || 80;
@@ -665,11 +664,13 @@
         let answered = false;
         let currentMode = 'hz-vn';
         let currentFeature = 'multi';
+        
         let qFontSize = 32;
         let aFontSize = 16;
         let ansFontSize = 20;
         let tableFontSize = 14;
         let roundNumber = 1;
+
         let flashFrontSize = 60;
         let flashBackSize = 24;
         let isAuto = false;
@@ -684,11 +685,21 @@
             initAudioSettings();
             applyColorStyles();
             renderTable();
+
+            // Khởi tạo các giá trị thanh trượt ban đầu
+            updateQFontSize(100);
+            updateAFontSize(40);
+            updateAnsFontSize(40);
+
             const userInput = document.getElementById('user-answer');
             userInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    if (!answered) { checkManualAnswer(); } else { nextQuestion(); }
+                    if (!answered) {
+                        checkManualAnswer();
+                    } else {
+                        nextQuestion();
+                    }
                     setTimeout(() => this.focus(), 10);
                 } else if (e.key === ' ' && answered) {
                     e.preventDefault();
@@ -701,7 +712,8 @@
         function initAudioSettings() {
             const volSlider = document.getElementById('audio-volume-slider');
             if(volSlider) volSlider.value = audioVolume;
-            document.getElementById('audio-volume-val').innerText = audioVolume + '%';
+            const volVal = document.getElementById('audio-volume-val');
+            if(volVal) volVal.innerText = audioVolume + '%';
             updateMuteUI();
         }
 
@@ -783,9 +795,18 @@
             let styleEl = document.getElementById(styleId) || document.createElement('style');
             styleEl.id = styleId;
             styleEl.innerHTML = `
-                .hanzi-cell, .text-color-hanzi, .q-hanzi-extra, #q-main-text.text-color-hanzi, #flash-h-front, #flash-h-back { color: ${colors.hanzi} !important; font-weight: ${weights.hanzi} !important; }
-                .pinyin-cell, .text-color-pinyin, .q-pinyin, #flash-p { color: ${colors.pinyin} !important; font-weight: ${weights.pinyin} !important; }
-                .meaning-cell, .text-color-meaning, .q-meaning, #q-main-text.text-color-meaning, #flash-m { color: ${colors.meaning} !important; font-weight: ${weights.meaning} !important; }
+                .hanzi-cell, .text-color-hanzi, .q-hanzi-extra, #q-main-text.text-color-hanzi, #flash-h-front, #flash-h-back, #info-slot-2.chinese-font { 
+                    color: ${colors.hanzi} !important; 
+                    font-weight: ${weights.hanzi} !important; 
+                }
+                .pinyin-cell, .text-color-pinyin, .q-pinyin, #flash-p { 
+                    color: ${colors.pinyin} !important; 
+                    font-weight: ${weights.pinyin} !important; 
+                }
+                .meaning-cell, .text-color-meaning, .q-meaning, #q-main-text.text-color-meaning, #flash-m { 
+                    color: ${colors.meaning} !important; 
+                    font-weight: ${weights.meaning} !important; 
+                }
                 .option-btn, #user-answer { font-weight: ${weights.hanzi}; }
             `;
             if (!document.getElementById(styleId)) document.head.appendChild(styleEl);
@@ -793,26 +814,26 @@
 
         function saveData() {
             const input = document.getElementById('bulk-input').value.trim();
-            if (!input) { alert("Hãy dán dữ liệu vào ô trống!"); return; }
-            const rows = input.split(/\r?\n/);
-            const newVocabulary = [];
-            rows.forEach((row) => {
-                if (!row.trim()) return;
-                let cols = row.split('\t');
-                if (cols.length < 2) cols = row.split(' - ');
-                const cleanCols = cols.map(c => {
-                    let text = c.trim();
-                    if (text.startsWith('"') && text.endsWith('"')) text = text.substring(1, text.length - 1).replace(/""/g, '"');
-                    return text;
-                });
-                if (cleanCols[0]) {
-                    newVocabulary.push({ h: cleanCols[0], p: cleanCols[1] || '', m: cleanCols[2] || '', learned: false });
-                }
-            });
-            vocabulary = newVocabulary;
+            if (!input) {
+                alert("Hãy dán dữ liệu vào ô trống!");
+                return;
+            }
+            const rows = input.split('\n');
+            const newVocab = rows.map(row => {
+                const parts = row.split('\t').length > 1 ? row.split('\t') : row.split(' - ');
+                return {
+                    h: parts[0]?.trim() || '',
+                    p: parts[1]?.trim() || '',
+                    m: parts[2]?.trim() || '',
+                    learned: false
+                };
+            }).filter(item => item.h && item.m);
+
+            vocabulary = newVocab;
             localStorage.setItem(STORAGE_KEY, JSON.stringify(vocabulary));
             renderTable();
-            alert("Đã cập nhật " + vocabulary.length + " từ!");
+            document.getElementById('bulk-input').value = '';
+            alert(`Đã cập nhật ${newVocab.length} từ vựng!`);
         }
 
         function renderTable() {
@@ -820,7 +841,7 @@
             tbody.innerHTML = '';
             vocabulary.forEach((item, index) => {
                 const tr = document.createElement('tr');
-                if (item.learned) tr.className = 'learned-row';
+                if (item.learned) tr.classList.add('learned-row');
                 tr.innerHTML = `
                     <td class="hanzi-cell chinese-font" style="font-size: ${tableFontSize}px">${item.h}</td>
                     <td class="pinyin-cell" style="font-size: ${tableFontSize}px">${item.p}</td>
@@ -839,58 +860,71 @@
             renderTable();
         }
 
-        function updateTableFontSize(val) {
-            tableFontSize = val;
-            document.getElementById('table-font-size-val').innerText = val + 'px';
-            renderTable();
-        }
+        function showTab(tabName) {
+            stopAuto();
+            resetToSetup(); 
+            showFlashcardSetup();
 
-        function showTab(tabId) {
-            ['data', 'quiz', 'flashcard'].forEach(id => {
-                document.getElementById('tab-' + id).classList.add('hidden');
-                document.getElementById('tab-' + id + '-btn').className = 'px-3 py-2 rounded-lg text-[10px] font-bold text-custom-muted transition-all';
-            });
-            document.getElementById('tab-' + tabId).classList.remove('hidden');
-            document.getElementById('tab-' + tabId + '-btn').className = 'px-3 py-2 rounded-lg text-[10px] font-bold bg-blue-600 text-white transition-all';
-            
-            // Hiện nút điều khiển âm thanh khi ở tab flashcard
-            document.getElementById('flash-audio-controls').classList.toggle('hidden', tabId !== 'flashcard');
+            document.getElementById('tab-data').classList.add('hidden');
+            document.getElementById('tab-quiz').classList.add('hidden');
+            document.getElementById('tab-flashcard').classList.add('hidden');
+            document.getElementById('tab-data-btn').className = 'px-3 py-2 rounded-lg text-[10px] font-bold text-custom-muted transition-all';
+            document.getElementById('tab-quiz-btn').className = 'px-3 py-2 rounded-lg text-[10px] font-bold text-custom-muted transition-all';
+            document.getElementById('tab-flashcard-btn').className = 'px-3 py-2 rounded-lg text-[10px] font-bold text-custom-muted transition-all';
 
-            // Quay về màn hình thiết lập khi đổi tab
-            if (tabId === 'quiz') resetToSetup();
-            if (tabId === 'flashcard') showFlashcardSetup();
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabName}-btn`).classList.add('bg-blue-600', 'text-white');
+            document.getElementById(`tab-${tabName}-btn`).classList.remove('text-custom-muted');
+
+            const audioControls = document.getElementById('global-audio-controls');
+            if (tabName === 'quiz' || tabName === 'flashcard') {
+                audioControls.classList.remove('hidden');
+            } else {
+                audioControls.classList.add('hidden');
+            }
         }
 
         function toggleModeOptions() {
             const feature = document.querySelector('input[name="q-feature"]:checked').value;
-            document.getElementById('mode-options-container').classList.toggle('hidden', feature === 'mix');
             document.getElementById('multi-modes').classList.toggle('hidden', feature !== 'multi');
             document.getElementById('manual-modes').classList.toggle('hidden', feature !== 'manual');
         }
 
         function setMaxQuestions() {
-            const activePool = vocabulary.filter(v => !v.learned);
-            document.getElementById('q-count-input').value = activePool.length;
+            const activeVocab = vocabulary.filter(v => !v.learned);
+            document.getElementById('q-count-input').value = activeVocab.length;
         }
 
         function startQuiz() {
-            const count = parseInt(document.getElementById('q-count-input').value);
-            const activePool = vocabulary.filter(v => !v.learned);
-            if (activePool.length === 0) { alert("Danh sách trống hoặc tất cả đã thuộc!"); return; }
-            if (isNaN(count) || count <= 0) { alert("Nhập số câu hỏi!"); return; }
-            
-            currentFeature = document.querySelector('input[name="q-feature"]:checked').value;
-            if (currentFeature === 'multi') currentMode = document.querySelector('input[name="q-mode-multi"]:checked').value;
-            else if (currentFeature === 'manual') currentMode = document.querySelector('input[name="q-mode-manual"]:checked').value;
+            const activeVocab = vocabulary.filter(v => !v.learned);
+            if (activeVocab.length < 2) {
+                alert("Cần ít nhất 2 từ chưa thuộc để bắt đầu!");
+                return;
+            }
 
-            quizPool = [...activePool].sort(() => 0.5 - Math.random()).slice(0, count);
-            currentIndex = 0; totalCorrect = 0; totalAttempts = 0; roundNumber = 1;
+            const countInput = document.getElementById('q-count-input').value;
+            const count = countInput ? parseInt(countInput) : activeVocab.length;
+            
+            quizPool = [...activeVocab].sort(() => 0.5 - Math.random()).slice(0, count);
+            wrongAnswers = [];
+            currentIndex = 0;
+            totalCorrect = 0;
+            totalAttempts = 0;
+            roundNumber = 1;
+
+            currentFeature = document.querySelector('input[name="q-feature"]:checked').value;
+            if (currentFeature === 'multi') {
+                currentMode = document.querySelector('input[name="q-mode-multi"]:checked').value;
+            } else {
+                currentMode = document.querySelector('input[name="q-mode-manual"]:checked').value;
+            }
+
             document.getElementById('quiz-setup').classList.add('hidden');
             document.getElementById('quiz-active').classList.remove('hidden');
-            loadQuestion();
+            showQuestion();
         }
 
-        function loadQuestion() {
+        function showQuestion() {
             answered = false;
             const item = quizPool[currentIndex];
             const qMain = document.getElementById('q-main-text');
@@ -898,131 +932,157 @@
             const optionsDiv = document.getElementById('options');
             const manualArea = document.getElementById('manual-input-area');
             const nextBtn = document.getElementById('next-action');
+            const userInp = document.getElementById('user-answer');
 
-            qMain.className = "chinese-font text-color-hanzi";
-            qMain.style.fontSize = qFontSize + 'px';
+            qMain.className = "";
             qInfo.classList.add('hidden');
+            nextBtn.classList.add('invisible');
             optionsDiv.innerHTML = '';
             manualArea.classList.add('hidden');
-            nextBtn.classList.add('invisible');
-            document.getElementById('user-answer').value = '';
-            document.getElementById('user-answer').className = 'custom-input chinese-font text-center';
+            userInp.value = '';
+            userInp.className = 'custom-input chinese-font text-center';
+            // Cập nhật cỡ chữ cho ô input khi bắt đầu câu mới
+            userInp.style.fontSize = aFontSize + 'px';
+
+            document.getElementById('quiz-progress').innerText = `CÂU ${currentIndex + 1}/${quizPool.length}`;
+            document.getElementById('quiz-round-tag').innerText = `Vòng ${roundNumber}`;
+            updateStats();
 
             if (currentMode === 'hz-vn') {
-                qMain.innerText = item.h;
-            } else if (currentMode === 'vn-hz' || currentMode === 'hz-hz') {
-                qMain.innerText = (currentMode === 'vn-hz') ? item.m : item.h;
-                qMain.className = (currentMode === 'vn-hz') ? "text-color-meaning" : "chinese-font text-color-hanzi";
-            }
+    qMain.innerText = item.h;
+    qMain.className = "chinese-font text-color-hanzi";
+    qMain.style.fontSize = qFontSize + 'px';
+
+} else if (currentMode === 'vn-hz') {
+    qMain.innerText = item.m;
+    qMain.className = "text-color-meaning"; // không dùng chinese-font
+    qMain.style.fontSize = qFontSize + 'px';
+
+} else if (currentMode === 'hz-hz') {
+    qMain.innerText = item.h;
+    qMain.className = "chinese-font text-color-hanzi";
+    qMain.style.fontSize = qFontSize + 'px';
+}
 
             if (currentFeature === 'multi') {
                 optionsDiv.classList.remove('hidden');
-                const choices = [item];
-                while (choices.length < 4 && choices.length < vocabulary.length) {
-                    const rand = vocabulary[Math.floor(Math.random() * vocabulary.length)];
-                    if (!choices.find(c => c.h === rand.h)) choices.push(rand);
-                }
-                choices.sort(() => 0.5 - Math.random()).forEach(choice => {
+                const distractors = vocabulary
+                    .filter(v => v.h !== item.h)
+                    .sort(() => 0.5 - Math.random())
+                    .slice(0, 3);
+                
+                const choices = [...distractors, item].sort(() => 0.5 - Math.random());
+                
+                choices.forEach(choice => {
                     const btn = document.createElement('div');
                     btn.className = 'option-btn';
                     btn.style.fontSize = aFontSize + 'px';
-                    btn.innerText = (currentMode === 'hz-vn') ? choice.m : choice.h;
-                    if (currentMode === 'vn-hz' || currentMode === 'hz-hz') btn.classList.add('chinese-font');
-                    btn.onclick = () => checkMultiAnswer(choice.h, btn);
+                    if (currentMode === 'hz-vn') {
+                        btn.innerText = choice.m;
+                    } else {
+                        btn.classList.add('chinese-font');
+                        btn.innerText = choice.h;
+                    }
+                    btn.onclick = () => checkMultiAnswer(btn, choice);
                     optionsDiv.appendChild(btn);
                 });
             } else {
                 manualArea.classList.remove('hidden');
-                document.getElementById('user-answer').style.fontSize = aFontSize + 'px';
-                setTimeout(() => document.getElementById('user-answer').focus(), 100);
+                setTimeout(() => userInp.focus(), 100);
             }
-            updateProgress();
         }
 
-        function checkMultiAnswer(selectedHz, btn) {
+        function checkMultiAnswer(btn, choice) {
             if (answered) return;
             answered = true;
+            const correctItem = quizPool[currentIndex];
             totalAttempts++;
-            const correctHz = quizPool[currentIndex].h;
-            if (selectedHz === correctHz) {
+
+            if (choice.h === correctItem.h) {
                 btn.classList.add('correct');
                 totalCorrect++;
             } else {
                 btn.classList.add('wrong');
-                wrongAnswers.push(quizPool[currentIndex]);
-                document.querySelectorAll('.option-btn').forEach(b => {
-                    if (b.innerText === correctHz) b.classList.add('correct');
+                wrongAnswers.push(correctItem);
+                const btns = document.querySelectorAll('.option-btn');
+                btns.forEach(b => {
+                    if (currentMode === 'hz-vn') {
+                        if (b.innerText === correctItem.m) b.classList.add('correct');
+                    } else {
+                        if (b.innerText === correctItem.h) b.classList.add('correct');
+                    }
                 });
             }
-            showDetails();
+            showAnswerDetails();
         }
 
         function checkManualAnswer() {
             if (answered) return;
-            const userVal = document.getElementById('user-answer').value.trim();
-            if (!userVal) return;
+            const userAns = document.getElementById('user-answer').value.trim();
+            if (!userAns) return;
+
             answered = true;
+            const correctItem = quizPool[currentIndex];
+            const inputEl = document.getElementById('user-answer');
             totalAttempts++;
-            const correctHz = quizPool[currentIndex].h;
-            const input = document.getElementById('user-answer');
-            if (userVal === correctHz) {
-                input.classList.add('correct-input');
+
+            if (userAns === correctItem.h) {
+                inputEl.classList.add('correct-input');
                 totalCorrect++;
             } else {
-                input.classList.add('wrong-input');
-                wrongAnswers.push(quizPool[currentIndex]);
+                inputEl.classList.add('wrong-input');
+                wrongAnswers.push(correctItem);
             }
-            showDetails();
+            showAnswerDetails();
         }
 
-        function showDetails() {
-    const item = quizPool[currentIndex];
-    const qInfo = document.getElementById('q-info');
-    const slot1 = document.getElementById('info-slot-1');
-    const slot2 = document.getElementById('info-slot-2');
-    const slot3 = document.getElementById('info-slot-3');
-    
-    qInfo.classList.remove('hidden');
-    
-    slot1.innerText = item.h;
-    slot1.className = "chinese-font text-color-hanzi";
-    slot1.style.fontSize = ansFontSize + 'px';
+        function showAnswerDetails() {
+            const item = quizPool[currentIndex];
+            const qInfo = document.getElementById('q-info');
+            const slot1 = document.getElementById('info-slot-1');
+            const slot2 = document.getElementById('info-slot-2');
+            const slot3 = document.getElementById('info-slot-3');
 
-    // THAY ĐỔI Ở ĐÂY: Bỏ thẻ <br> và thêm dấu gạch đứng |
-    slot2.innerHTML = `<span class="text-color-pinyin">${item.p}</span> <span class="mx-2 opacity-50">|</span> <span class="text-color-meaning">${item.m}</span>`;
-    
-    slot2.style.fontSize = (ansFontSize * 0.6) + 'px';
-    
-    document.getElementById('next-action').classList.remove('invisible');
-    updateProgress();
-}
+            qInfo.classList.remove('hidden');
+            slot1.innerText = item.h;
+            slot1.className = "chinese-font text-color-hanzi leading-tight";
+            slot1.style.fontSize = ansFontSize + 'px';
+            slot2.innerHTML = `<span class="text-color-pinyin">${item.p}</span> <span class="mx-2 opacity-50">|</span> <span class="text-color-meaning">${item.m}</span>`;
+            slot2.style.fontSize = (ansFontSize * 0.6) + 'px';
+
+            document.getElementById('next-action').classList.remove('invisible');
+            updateStats();
+
+            if (!isMuted) {
+                speakHanzi(item.h);
+            }
+        }
 
         function nextQuestion() {
             currentIndex++;
             if (currentIndex < quizPool.length) {
-                loadQuestion();
-            } else if (wrongAnswers.length > 0) {
-                quizPool = [...wrongAnswers];
-                wrongAnswers = [];
-                currentIndex = 0;
-                roundNumber++;
-                totalAttempts = 0;
-                totalCorrect = 0;
-                
-                loadQuestion();
+                showQuestion();
             } else {
-                document.getElementById('quiz-controls').classList.add('hidden');
-                document.getElementById('question-card').classList.add('hidden');
-                document.getElementById('completion-status').classList.remove('hidden');
+                if (wrongAnswers.length > 0) {
+                    quizPool = [...wrongAnswers];
+                    wrongAnswers = [];
+                    currentIndex = 0;
+                    roundNumber++;
+                    totalCorrect = 0;
+                    totalAttempts = 0;
+                    showQuestion();
+                } else {
+                    document.getElementById('quiz-controls').classList.add('hidden');
+                    document.getElementById('question-card').classList.add('hidden');
+                    document.getElementById('completion-status').classList.remove('hidden');
+                }
             }
         }
 
-        function updateProgress() {
-            document.getElementById('quiz-round-tag').innerText = "Vòng " + roundNumber;
-            document.getElementById('quiz-progress').innerText = `Câu ${currentIndex + 1}/${quizPool.length}`;
+        function updateStats() {
             document.getElementById('quiz-correct').innerText = totalCorrect;
             const rate = totalAttempts === 0 ? 0 : Math.round((totalCorrect / totalAttempts) * 100);
-            document.getElementById('quiz-rate').innerText = rate + "%";
+            document.getElementById('quiz-rate').innerText = rate + '%';
         }
 
         function resetToSetup() {
@@ -1031,137 +1091,109 @@
             document.getElementById('quiz-controls').classList.remove('hidden');
             document.getElementById('question-card').classList.remove('hidden');
             document.getElementById('completion-status').classList.add('hidden');
-            wrongAnswers = [];
         }
 
-        function updateQFontSize(val) { qFontSize = val; document.getElementById('q-font-size-val').innerText = val + 'px'; }
-        function updateAFontSize(val) { aFontSize = val; document.getElementById('a-font-size-val').innerText = val + 'px'; }
-        function updateAnsFontSize(val) { ansFontSize = val; document.getElementById('ans-font-size-val').innerText = val + 'px'; }
+        function showFlashcardSetup() {
+            document.getElementById('flashcard-setup').classList.remove('hidden');
+            document.getElementById('flashcard-active').classList.add('hidden');
+        }
 
-        // FLASHCARD LOGIC
         function startFlashcards() {
-            const activePool = vocabulary.filter(v => !v.learned);
-            if (activePool.length === 0) { alert("Danh sách trống!"); return; }
-            quizPool = [...activePool].sort(() => 0.5 - Math.random());
+            const activeVocab = vocabulary.filter(v => !v.learned);
+            if (activeVocab.length === 0) {
+                alert("Không có từ vựng nào để học!");
+                return;
+            }
+            quizPool = [...activeVocab].sort(() => 0.5 - Math.random());
             currentIndex = 0;
             document.getElementById('flashcard-setup').classList.add('hidden');
             document.getElementById('flashcard-active').classList.remove('hidden');
-            loadFlashcard();
+            showFlashcard();
         }
 
-        function loadFlashcard() {
+        function showFlashcard() {
             const item = quizPool[currentIndex];
             const inner = document.getElementById('flashcard-inner');
             inner.classList.remove('is-flipped');
             
-            document.getElementById('flash-progress').innerText = `Thẻ ${currentIndex + 1}/${quizPool.length}`;
+            document.getElementById('flash-progress').innerText = `THẺ ${currentIndex + 1}/${quizPool.length}`;
             
-            const fH = document.getElementById('flash-h-front');
-            fH.innerText = item.h;
-            fH.style.fontSize = flashFrontSize + 'px';
+            const hFront = document.getElementById('flash-h-front');
+            hFront.innerText = item.h;
+            hFront.style.fontSize = flashFrontSize + 'px';
 
-            const bH = document.getElementById('flash-h-back');
-            bH.innerText = item.h;
-            bH.style.fontSize = flashFrontSize + 'px'; 
+            const hBack = document.getElementById('flash-h-back');
+            hBack.innerText = item.h;
+            hBack.style.fontSize = flashFrontSize + 'px'; 
 
-            const fP = document.getElementById('flash-p');
-            fP.innerText = item.p;
-            fP.style.fontSize = flashBackSize + 'px';
+            const pBack = document.getElementById('flash-p');
+            pBack.innerText = item.p;
+            pBack.style.fontSize = flashBackSize + 'px';
 
-            const fM = document.getElementById('flash-m');
-            fM.innerText = item.m;
-            fM.style.fontSize = flashBackSize + 'px';
+            const mBack = document.getElementById('flash-m');
+            mBack.innerText = item.m;
+            mBack.style.fontSize = flashBackSize + 'px';
 
-            if(isAuto) {
+            if (isAuto) {
                 autoTimer = setTimeout(() => {
-                    if(isAuto) flipCard();
+                    flipCard();
                 }, timeFront * 1000);
             }
         }
 
         function flipCard() {
             const inner = document.getElementById('flashcard-inner');
-            const wasFlipped = inner.classList.contains('is-flipped');
-            inner.classList.toggle('is-flipped');
-            
-            if(!wasFlipped) {
-                if (!isMuted) {
-                    speakCurrentFlash();
-                }
-                if(isAuto) {
+            if (!inner.classList.contains('is-flipped')) {
+                inner.classList.add('is-flipped');
+                if (!isMuted) speakHanzi(quizPool[currentIndex].h);
+                
+                if (isAuto) {
                     clearTimeout(autoTimer);
                     autoTimer = setTimeout(() => {
-                        if(isAuto) nextFlashcard();
+                        nextFlashcard();
                     }, timeBack * 1000);
                 }
             }
         }
 
         function nextFlashcard() {
-            clearTimeout(autoTimer);
-            currentIndex++;
-            if(currentIndex >= quizPool.length) {
-                currentIndex = 0;
-                quizPool.sort(() => 0.5 - Math.random());
-            }
-            loadFlashcard();
+            currentIndex = (currentIndex + 1) % quizPool.length;
+            showFlashcard();
         }
 
         function toggleAuto() {
-            isAuto = !isAuto;
-            const btn = document.getElementById('btn-auto-flash');
-            if(isAuto) {
-                btn.innerText = "AUTO: BẬT";
-                btn.className = "flex-1 bg-emerald-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-md transition-all";
-                loadFlashcard();
-            } else {
-                stopAuto();
-            }
-        }
+    isAuto = !isAuto;
+    const btn = document.getElementById('btn-auto-flash');
+
+    if (isAuto) {
+        btn.innerText = "AUTO: BẬT";
+        btn.className = "flex-1 bg-emerald-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-md transition-all";
+
+        showFlashcard(); // ✅ FIX Ở ĐÂY
+
+    } else {
+        stopAuto();
+    }
+}
 
         function stopAuto() {
-            isAuto = false;
-            clearTimeout(autoTimer);
-            const btn = document.getElementById('btn-auto-flash');
-            if(btn) {
-                btn.innerText = "AUTO: TẮT";
-                btn.className = "flex-1 bg-slate-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-md transition-all";
-            }
-        }
+    isAuto = false;
+    clearTimeout(autoTimer);
+    const btn = document.getElementById('btn-auto-flash');
+    if (btn) {
+        btn.innerText = "AUTO: TẮT";
+        btn.className = "flex-1 bg-slate-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-md transition-all";
+    }
+}
 
-        function showFlashcardSetup() {
-            document.getElementById('flashcard-setup').classList.remove('hidden');
-            document.getElementById('flashcard-active').classList.add('hidden');
-            stopAuto();
-        }
-
-        function updateFlashFontSize(side, val) {
-            if(side === 'front') { 
-                flashFrontSize = val;
-                document.getElementById('flash-front-val').innerText = val; 
-            } else { 
-                flashBackSize = val;
-                document.getElementById('flash-back-val').innerText = val; 
-            }
-        }
-
-        function updateAutoTime(side, val) {
-            if(side === 'front') { 
-                timeFront = val;
-                document.getElementById('time-front-val').innerText = val; 
-            } else { 
-                timeBack = val;
-                document.getElementById('time-back-val').innerText = val; 
-            }
-        }
-
-        function speakCurrentFlash() {
-            if(quizPool[currentIndex]) {
-                speakHanzi(quizPool[currentIndex].h);
-            }
+        function speakCurrentItem() {
+            const item = quizPool[currentIndex];
+            if (item) speakHanzi(item.h);
         }
 
         function speakHanzi(text) {
+            if (isMuted) return; 
+            window.speechSynthesis.cancel();
             const ut = new SpeechSynthesisUtterance(text);
             ut.lang = 'zh-CN';
             ut.volume = audioVolume / 100;
@@ -1169,10 +1201,60 @@
             window.speechSynthesis.speak(ut);
         }
 
-        function updateAudioVolume(val) {
-            audioVolume = val;
-            document.getElementById('audio-volume-val').innerText = val + '%';
-            localStorage.setItem(VOLUME_KEY, val);
+        function updateTableFontSize(val) {
+            tableFontSize = val;
+            document.getElementById('table-font-size-val').innerText = val + 'px';
+            renderTable();
+        }
+
+        function updateQFontSize(val) {
+            qFontSize = val;
+            document.getElementById('q-font-size-val').innerText = val + 'px';
+            if (!document.getElementById('quiz-active').classList.contains('hidden')) {
+                const qMain = document.getElementById('q-main-text');
+                if (qMain) qMain.style.fontSize = qFontSize + 'px';
+            }
+        }
+
+        function updateAFontSize(val) {
+            aFontSize = val;
+            document.getElementById('a-font-size-val').innerText = val + 'px';
+            // Cập nhật ngay lập tức cho ô nhập liệu (nếu đang ở Tự luận)
+            const userInp = document.getElementById('user-answer');
+            if (userInp) userInp.style.fontSize = aFontSize + 'px';
+            // Cập nhật cho các nút trắc nghiệm (nếu đang ở Trắc nghiệm)
+            const opts = document.querySelectorAll('.option-btn');
+            opts.forEach(opt => opt.style.fontSize = aFontSize + 'px');
+        }
+
+        function updateAnsFontSize(val) {
+            ansFontSize = val;
+            document.getElementById('ans-font-size-val').innerText = val + 'px';
+            // Cập nhật ngay lập tức cho phần chi tiết đáp án nếu nó đang hiển thị
+            const slot2 = document.getElementById('info-slot-2');
+            const slot3 = document.getElementById('info-slot-3');
+            if (slot2) slot2.style.fontSize = ansFontSize + 'px';
+            if (slot3) slot3.style.fontSize = (ansFontSize * 0.6) + 'px';
+        }
+
+        function updateFlashFontSize(side, val) {
+            if (side === 'front') {
+                flashFrontSize = val;
+                document.getElementById('flash-front-val').innerText = val;
+            } else {
+                flashBackSize = val;
+                document.getElementById('flash-back-val').innerText = val;
+            }
+        }
+
+        function updateAutoTime(side, val) {
+            if (side === 'front') {
+                timeFront = val;
+                document.getElementById('time-front-val').innerText = val;
+            } else {
+                timeBack = val;
+                document.getElementById('time-back-val').innerText = val;
+            }
         }
     </script>
 </body>
