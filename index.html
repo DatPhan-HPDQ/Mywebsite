@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tong Hop Du Lieu</title>
+    <title>HSK Master - Study Tool</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -16,6 +16,7 @@
             --border-color: #e2e8f0;
             --input-bg: #f8fafc;
             --setting-item-bg: #f1f5f9; 
+            --btn-gray-dark: #111827; /* Màu xám đậm cho Dark Mode */
         }
 
         .dark {
@@ -102,6 +103,7 @@
             display: none !important;
         }
 
+        /* Style cho nút Câu tiếp theo và các nút Darkmode */
         .btn-next-full {
             background: #3b82f6;
             color: white;
@@ -121,7 +123,8 @@
             font-size: 13px;
             margin-top: 24px;
         }
-        .btn-next-full:hover { background: #2563eb; transform: scale(1.01); }
+        .dark .btn-next-full { background: var(--btn-gray-dark); }
+        .btn-next-full:hover { opacity: 0.9; transform: scale(1.01); }
 
         .option-grid {
             display: grid;
@@ -283,6 +286,7 @@
             width: 100%;
         }
 
+        /* Nút thoát đặc biệt */
         .btn-exit-styled {
             background: #ef4444;
             color: white;
@@ -299,7 +303,55 @@
             align-items: center;
             gap: 6px;
         }
-        .btn-exit-styled:hover { background: #dc2626; transform: scale(1.02); }
+        .dark .btn-exit-styled { background: var(--btn-gray-dark); box-shadow: none; }
+        .btn-exit-styled:hover { opacity: 0.9; transform: scale(1.02); }
+
+        /* Nút Flashcard cụ thể cho Dark Mode */
+        .btn-flash-control { transition: all 0.2s; }
+        .dark .btn-flash-control { background: var(--btn-gray-dark) !important; color: white !important; }
+.flashcard-exit {
+    animation: flashExit 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes flashExit {
+    0% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+        filter: blur(0);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.6) translateY(30px);
+        filter: blur(4px);
+    }
+}
+
+.flashcard-back {
+    transition: 
+        opacity 1.2s ease,
+        filter 1.2s ease,
+        transform 1.8s cubic-bezier(0.16, 1, 0.3, 1); /* mượt + chậm hơn */
+}
+
+.flashcard-back.fade-out {
+    opacity: 0;
+    transform: scale(0.6) translateY(30px); /* thu nhỏ rõ hơn + trôi xuống */
+    filter: blur(6px);
+    transition-delay: 0.1s;
+}
+
+.fade-in {
+    opacity: 0;
+    transform: scale(0.9);
+    animation: fadeInZoom 0.8s cubic-bezier(0.22,1,0.36,1) 0.2s forwards;
+}
+
+@keyframes fadeInZoom {
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -333,6 +385,7 @@
     </div>
 
     <main class="max-w-2xl mx-auto">
+        <!-- TAB DỮ LIỆU -->
         <div id="tab-data" class="space-y-4">
             <div class="bg-custom-card p-5 rounded-2xl border shadow-sm">
                 <label class="text-[11px] font-bold text-custom-muted uppercase tracking-wider mb-2 block">Dán dữ liệu từ Excel (Hán tự - Pinyin - Nghĩa)</label>
@@ -419,6 +472,7 @@
             </div>
         </div>
 
+        <!-- TAB LUYỆN TẬP -->
         <div id="tab-quiz" class="hidden">
             <div id="quiz-setup" class="bg-custom-card p-8 rounded-2xl border shadow-sm">
                 <div class="flex items-center gap-3 mb-8">
@@ -530,11 +584,11 @@
 
                 <div id="question-card" class="q-card shadow-sm">
                     <div class="q-content-left">
-                        <div id="q-main-text" class="">--</div>
+                        <div id="q-main-text">--</div>
                         <div id="q-info" class="q-details hidden">
-                            <span id="info-slot-1" class="text-xs font-medium uppercase tracking-wider opacity-60"></span>
-                            <span id="info-slot-2" class="text-lg"></span>
-                            <span id="info-slot-3" class="text-base"></span>
+                            <span id="info-slot-1"></span>
+                            <span id="info-slot-2"></span>
+                            <span id="info-slot-3"></span>
                         </div>
                     </div>
                 </div>
@@ -571,6 +625,7 @@
             </div>
         </div>
 
+        <!-- TAB FLASHCARD -->
         <div id="tab-flashcard" class="hidden">
             <div id="flashcard-setup" class="bg-custom-card p-8 rounded-2xl border shadow-sm mb-6 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -581,7 +636,7 @@
                     </div>
                     <div class="setting-item-box">
                         <label class="text-[11px] font-bold text-custom-muted uppercase mb-3 block">Cỡ chữ Mặt sau (Pinyin/Nghĩa)</label>
-                        <input type="range" min="10" max="100" value="40" oninput="updateFlashFontSize('back', this.value)" class="w-full">
+                        <input type="range" min="10" max="100" value="45" oninput="updateFlashFontSize('back', this.value)" class="w-full">
                         <div class="text-right text-xs font-bold text-emerald-500 mt-1"><span id="flash-back-val">24</span>px</div>
                     </div>
                 </div>
@@ -589,12 +644,12 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-700/10">
                     <div class="setting-item-box">
                         <label class="text-[11px] font-bold text-custom-muted uppercase mb-3 block">Thời gian Mặt trước (Auto)</label>
-                        <input type="range" id="time-front-slider" min="1" max="30" value="10" oninput="updateAutoTime('front', this.value)" class="w-full">
+                        <input type="range" id="time-front-slider" min="3" max="30" value="5" oninput="updateAutoTime('front', this.value)" class="w-full">
                         <div class="text-right text-xs font-bold text-blue-500 mt-1"><span id="time-front-val">10</span>s</div>
                     </div>
                     <div class="setting-item-box">
                         <label class="text-[11px] font-bold text-custom-muted uppercase mb-3 block">Thời gian Mặt sau (Auto)</label>
-                        <input type="range" id="time-back-slider" min="1" max="30" value="10" oninput="updateAutoTime('back', this.value)" class="w-full">
+                        <input type="range" id="time-back-slider" min="5" max="30" value="5" oninput="updateAutoTime('back', this.value)" class="w-full">
                         <div class="text-right text-xs font-bold text-emerald-500 mt-1"><span id="time-back-val">10</span>s</div>
                     </div>
                 </div>
@@ -632,9 +687,10 @@
                 </div>
 
                 <div class="flex gap-3">
-                    <button onclick="stopAuto(); showFlashcardSetup();" class="flex-1 bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-md transition-all">Thoát</button>
-                    <button id="btn-auto-flash" onclick="toggleAuto()" class="flex-1 bg-slate-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-md transition-all">AUTO: TẮT</button>
-                    <button onclick="stopAuto(); nextFlashcard();" class="flex-[2] bg-blue-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-md">Thẻ tiếp theo</button>
+                    <button onclick="stopAuto(); showFlashcardSetup();" class="flex-1 btn-flash-control bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-md">Thoát</button>
+                    <button id="btn-auto-flash" onclick="toggleAuto()" class="flex-1 btn-flash-control bg-slate-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-md">Auto</button>
+                    <button onclick="stopAuto(); prevFlashcard();" class="flex-1 btn-flash-control bg-yellow-500 text-yellow-900 py-3 rounded-xl font-bold text-xs uppercase shadow-md">Thẻ trước</button>
+                    <button onclick="stopAuto(); nextFlashcard();" class="flex-1 btn-flash-control bg-blue-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-md">Thẻ sau</button>
                 </div>
             </div>
         </div>
@@ -686,7 +742,6 @@
             applyColorStyles();
             renderTable();
 
-            // Khởi tạo các giá trị thanh trượt ban đầu
             updateQFontSize(100);
             updateAFontSize(40);
             updateAnsFontSize(40);
@@ -700,11 +755,9 @@
                     } else {
                         nextQuestion();
                     }
-                    setTimeout(() => this.focus(), 10);
                 } else if (e.key === ' ' && answered) {
                     e.preventDefault();
                     nextQuestion();
-                    setTimeout(() => this.focus(), 10);
                 }
             });
         };
@@ -795,7 +848,7 @@
             let styleEl = document.getElementById(styleId) || document.createElement('style');
             styleEl.id = styleId;
             styleEl.innerHTML = `
-                .hanzi-cell, .text-color-hanzi, .q-hanzi-extra, #q-main-text.text-color-hanzi, #flash-h-front, #flash-h-back, #info-slot-2.chinese-font { 
+                .hanzi-cell, .text-color-hanzi, .q-hanzi-extra, #q-main-text.text-color-hanzi, #flash-h-front, #flash-h-back, #info-slot-1 { 
                     color: ${colors.hanzi} !important; 
                     font-weight: ${weights.hanzi} !important; 
                 }
@@ -814,10 +867,7 @@
 
         function saveData() {
             const input = document.getElementById('bulk-input').value.trim();
-            if (!input) {
-                alert("Hãy dán dữ liệu vào ô trống!");
-                return;
-            }
+            if (!input) { alert("Hãy dán dữ liệu!"); return; }
             const rows = input.split('\n');
             const newVocab = rows.map(row => {
                 const parts = row.split('\t').length > 1 ? row.split('\t') : row.split(' - ');
@@ -861,6 +911,7 @@
         }
 
         function showTab(tabName) {
+            // Khi chuyển tab, thoát mọi trạng thái học hiện tại
             stopAuto();
             resetToSetup(); 
             showFlashcardSetup();
@@ -897,10 +948,7 @@
 
         function startQuiz() {
             const activeVocab = vocabulary.filter(v => !v.learned);
-            if (activeVocab.length < 2) {
-                alert("Cần ít nhất 2 từ chưa thuộc để bắt đầu!");
-                return;
-            }
+            if (activeVocab.length < 2) { alert("Cần ít nhất 2 từ chưa thuộc!"); return; }
 
             const countInput = document.getElementById('q-count-input').value;
             const count = countInput ? parseInt(countInput) : activeVocab.length;
@@ -941,7 +989,6 @@
             manualArea.classList.add('hidden');
             userInp.value = '';
             userInp.className = 'custom-input chinese-font text-center';
-            // Cập nhật cỡ chữ cho ô input khi bắt đầu câu mới
             userInp.style.fontSize = aFontSize + 'px';
 
             document.getElementById('quiz-progress').innerText = `CÂU ${currentIndex + 1}/${quizPool.length}`;
@@ -949,30 +996,23 @@
             updateStats();
 
             if (currentMode === 'hz-vn') {
-    qMain.innerText = item.h;
-    qMain.className = "chinese-font text-color-hanzi";
-    qMain.style.fontSize = qFontSize + 'px';
-
-} else if (currentMode === 'vn-hz') {
-    qMain.innerText = item.m;
-    qMain.className = "text-color-meaning"; // không dùng chinese-font
-    qMain.style.fontSize = qFontSize + 'px';
-
-} else if (currentMode === 'hz-hz') {
-    qMain.innerText = item.h;
-    qMain.className = "chinese-font text-color-hanzi";
-    qMain.style.fontSize = qFontSize + 'px';
-}
+                qMain.innerText = item.h;
+                qMain.className = "chinese-font text-color-hanzi";
+                qMain.style.fontSize = qFontSize + 'px';
+            } else if (currentMode === 'vn-hz') {
+                qMain.innerText = item.m;
+                qMain.className = "text-color-meaning";
+                qMain.style.fontSize = qFontSize + 'px';
+            } else if (currentMode === 'hz-hz') {
+                qMain.innerText = item.h;
+                qMain.className = "chinese-font text-color-hanzi";
+                qMain.style.fontSize = qFontSize + 'px';
+            }
 
             if (currentFeature === 'multi') {
                 optionsDiv.classList.remove('hidden');
-                const distractors = vocabulary
-                    .filter(v => v.h !== item.h)
-                    .sort(() => 0.5 - Math.random())
-                    .slice(0, 3);
-                
+                const distractors = vocabulary.filter(v => v.h !== item.h).sort(() => 0.5 - Math.random()).slice(0, 3);
                 const choices = [...distractors, item].sort(() => 0.5 - Math.random());
-                
                 choices.forEach(choice => {
                     const btn = document.createElement('div');
                     btn.className = 'option-btn';
@@ -1006,11 +1046,8 @@
                 wrongAnswers.push(correctItem);
                 const btns = document.querySelectorAll('.option-btn');
                 btns.forEach(b => {
-                    if (currentMode === 'hz-vn') {
-                        if (b.innerText === correctItem.m) b.classList.add('correct');
-                    } else {
-                        if (b.innerText === correctItem.h) b.classList.add('correct');
-                    }
+                    const checkTxt = currentMode === 'hz-vn' ? correctItem.m : correctItem.h;
+                    if (b.innerText === checkTxt) b.classList.add('correct');
                 });
             }
             showAnswerDetails();
@@ -1041,7 +1078,6 @@
             const qInfo = document.getElementById('q-info');
             const slot1 = document.getElementById('info-slot-1');
             const slot2 = document.getElementById('info-slot-2');
-            const slot3 = document.getElementById('info-slot-3');
 
             qInfo.classList.remove('hidden');
             slot1.innerText = item.h;
@@ -1053,9 +1089,7 @@
             document.getElementById('next-action').classList.remove('invisible');
             updateStats();
 
-            if (!isMuted) {
-                speakHanzi(item.h);
-            }
+            if (!isMuted) speakHanzi(item.h);
         }
 
         function nextQuestion() {
@@ -1100,10 +1134,7 @@
 
         function startFlashcards() {
             const activeVocab = vocabulary.filter(v => !v.learned);
-            if (activeVocab.length === 0) {
-                alert("Không có từ vựng nào để học!");
-                return;
-            }
+            if (activeVocab.length === 0) { alert("Không có từ vựng!"); return; }
             quizPool = [...activeVocab].sort(() => 0.5 - Math.random());
             currentIndex = 0;
             document.getElementById('flashcard-setup').classList.add('hidden');
@@ -1112,79 +1143,118 @@
         }
 
         function showFlashcard() {
-            const item = quizPool[currentIndex];
-            const inner = document.getElementById('flashcard-inner');
-            inner.classList.remove('is-flipped');
-            
-            document.getElementById('flash-progress').innerText = `THẺ ${currentIndex + 1}/${quizPool.length}`;
-            
-            const hFront = document.getElementById('flash-h-front');
-            hFront.innerText = item.h;
-            hFront.style.fontSize = flashFrontSize + 'px';
+    const item = quizPool[currentIndex];
+    const inner = document.getElementById('flashcard-inner');
 
-            const hBack = document.getElementById('flash-h-back');
-            hBack.innerText = item.h;
-            hBack.style.fontSize = flashFrontSize + 'px'; 
+    // ✅ 1. Tắt animation tạm thời
+    inner.style.transition = 'none';
+    inner.classList.remove('is-flipped');
 
-            const pBack = document.getElementById('flash-p');
-            pBack.innerText = item.p;
-            pBack.style.fontSize = flashBackSize + 'px';
+    // ✅ 2. Force reflow (rất quan trọng)
+    void inner.offsetWidth;
 
-            const mBack = document.getElementById('flash-m');
-            mBack.innerText = item.m;
-            mBack.style.fontSize = flashBackSize + 'px';
+    // ✅ 3. Bật lại animation
+    inner.style.transition = 'transform 0.6s';
 
-            if (isAuto) {
-                autoTimer = setTimeout(() => {
-                    flipCard();
-                }, timeFront * 1000);
-            }
-        }
+    // 👉 Sau đó mới update nội dung
+    document.getElementById('flash-progress').innerText = `THẺ ${currentIndex + 1}/${quizPool.length}`;
+    
+    const hFront = document.getElementById('flash-h-front');
+hFront.classList.remove('fade-in');   // reset animation
+void hFront.offsetWidth;              // force reflow
+hFront.innerText = item.h;
+hFront.style.fontSize = flashFrontSize + 'px';
+hFront.classList.add('fade-in');
+
+    const hBack = document.getElementById('flash-h-back');
+hBack.classList.remove('fade-in');
+void hBack.offsetWidth;
+hBack.innerText = item.h;
+hBack.style.fontSize = flashFrontSize + 'px';
+hBack.classList.add('fade-in');
+
+    const pBack = document.getElementById('flash-p');
+    pBack.innerText = item.p;
+    pBack.style.fontSize = flashBackSize + 'px';
+
+    const mBack = document.getElementById('flash-m');
+    mBack.innerText = item.m;
+    mBack.style.fontSize = flashBackSize + 'px';
+
+    // Auto
+    if (isAuto) {
+        autoTimer = setTimeout(() => { flipCard(); }, timeFront * 1000);
+    }
+}
 
         function flipCard() {
-            const inner = document.getElementById('flashcard-inner');
-            if (!inner.classList.contains('is-flipped')) {
-                inner.classList.add('is-flipped');
-                if (!isMuted) speakHanzi(quizPool[currentIndex].h);
-                
-                if (isAuto) {
-                    clearTimeout(autoTimer);
-                    autoTimer = setTimeout(() => {
-                        nextFlashcard();
-                    }, timeBack * 1000);
-                }
-            }
+    const inner = document.getElementById('flashcard-inner');
+    const isFlipped = inner.classList.contains('is-flipped');
+    
+    if (!isFlipped) {
+        inner.classList.add('is-flipped');
+
+        // Mặt trước → mặt sau
+        if (!isMuted) speakHanzi(quizPool[currentIndex].h);
+
+        if (isAuto) {
+            clearTimeout(autoTimer);
+            autoTimer = setTimeout(() => { nextFlashcard(); }, timeBack * 1000);
         }
+    } else {
+    inner.classList.remove('is-flipped');
+
+    if (!isMuted) speakHanzi(quizPool[currentIndex].h);
+}
+}
 
         function nextFlashcard() {
+    const inner = document.getElementById('flashcard-inner');
+
+    if (isAuto) {
+        // chạy animation biến mất
+        inner.classList.add('flashcard-exit');
+
+        setTimeout(() => {
+            inner.classList.remove('flashcard-exit');
+
             currentIndex = (currentIndex + 1) % quizPool.length;
+            showFlashcard();
+        }, 800); // khớp animation
+    } else {
+        currentIndex = (currentIndex + 1) % quizPool.length;
+        showFlashcard();
+    }
+}
+
+        function prevFlashcard() {
+            currentIndex = (currentIndex - 1 + quizPool.length) % quizPool.length;
             showFlashcard();
         }
 
         function toggleAuto() {
-    isAuto = !isAuto;
-    const btn = document.getElementById('btn-auto-flash');
-
-    if (isAuto) {
-        btn.innerText = "AUTO: BẬT";
-        btn.className = "flex-1 bg-emerald-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-md transition-all";
-
-        showFlashcard(); // ✅ FIX Ở ĐÂY
-
-    } else {
-        stopAuto();
-    }
-}
+            isAuto = !isAuto;
+            const btn = document.getElementById('btn-auto-flash');
+            if (isAuto) {
+                btn.innerText = "Auto: Bật";
+                btn.classList.add('bg-emerald-600');
+                btn.classList.remove('bg-slate-600');
+                showFlashcard();
+            } else {
+                stopAuto();
+            }
+        }
 
         function stopAuto() {
-    isAuto = false;
-    clearTimeout(autoTimer);
-    const btn = document.getElementById('btn-auto-flash');
-    if (btn) {
-        btn.innerText = "AUTO: TẮT";
-        btn.className = "flex-1 bg-slate-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-md transition-all";
-    }
-}
+            isAuto = false;
+            clearTimeout(autoTimer);
+            const btn = document.getElementById('btn-auto-flash');
+            if (btn) {
+                btn.innerText = "Auto";
+                btn.classList.add('bg-slate-600');
+                btn.classList.remove('bg-emerald-600');
+            }
+        }
 
         function speakCurrentItem() {
             const item = quizPool[currentIndex];
@@ -1210,31 +1280,16 @@
         function updateQFontSize(val) {
             qFontSize = val;
             document.getElementById('q-font-size-val').innerText = val + 'px';
-            if (!document.getElementById('quiz-active').classList.contains('hidden')) {
-                const qMain = document.getElementById('q-main-text');
-                if (qMain) qMain.style.fontSize = qFontSize + 'px';
-            }
         }
 
         function updateAFontSize(val) {
             aFontSize = val;
             document.getElementById('a-font-size-val').innerText = val + 'px';
-            // Cập nhật ngay lập tức cho ô nhập liệu (nếu đang ở Tự luận)
-            const userInp = document.getElementById('user-answer');
-            if (userInp) userInp.style.fontSize = aFontSize + 'px';
-            // Cập nhật cho các nút trắc nghiệm (nếu đang ở Trắc nghiệm)
-            const opts = document.querySelectorAll('.option-btn');
-            opts.forEach(opt => opt.style.fontSize = aFontSize + 'px');
         }
 
         function updateAnsFontSize(val) {
             ansFontSize = val;
             document.getElementById('ans-font-size-val').innerText = val + 'px';
-            // Cập nhật ngay lập tức cho phần chi tiết đáp án nếu nó đang hiển thị
-            const slot2 = document.getElementById('info-slot-2');
-            const slot3 = document.getElementById('info-slot-3');
-            if (slot2) slot2.style.fontSize = ansFontSize + 'px';
-            if (slot3) slot3.style.fontSize = (ansFontSize * 0.6) + 'px';
         }
 
         function updateFlashFontSize(side, val) {
