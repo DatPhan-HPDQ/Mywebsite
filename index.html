@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HSK Master - Study Tool</title>
+    <title>Tổng hợp dữ liệu</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -309,29 +309,9 @@
         /* Nút Flashcard cụ thể cho Dark Mode */
         .btn-flash-control { transition: all 0.2s; }
         .dark .btn-flash-control { background: var(--btn-gray-dark) !important; color: white !important; }
-.flashcard-exit {
-    animation: flashExit 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
 
-@keyframes flashExit {
-    0% {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-        filter: blur(0);
-    }
-    100% {
-        opacity: 0;
-        transform: scale(0.6) translateY(30px);
-        filter: blur(4px);
-    }
-}
 
-.flashcard-back {
-    transition: 
-        opacity 1.2s ease,
-        filter 1.2s ease,
-        transform 1.8s cubic-bezier(0.16, 1, 0.3, 1); /* mượt + chậm hơn */
-}
+
 
 .flashcard-back.fade-out {
     opacity: 0;
@@ -342,16 +322,16 @@
 
 .fade-in {
     opacity: 0;
-    transform: scale(0.9);
-    animation: fadeInZoom 0.8s cubic-bezier(0.22,1,0.36,1) 0.2s forwards;
+    transform: scale(0.97);
+    animation: fadeInZoom 0.3s ease-out 0s forwards;
 }
 
 @keyframes fadeInZoom {
-        to {
-            opacity: 1;
-            transform: scale(1);
-        }
+    to {
+        opacity: 1;
+        transform: scale(1);
     }
+}
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -644,7 +624,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-700/10">
                     <div class="setting-item-box">
                         <label class="text-[11px] font-bold text-custom-muted uppercase mb-3 block">Thời gian Mặt trước (Auto)</label>
-                        <input type="range" id="time-front-slider" min="3" max="30" value="5" oninput="updateAutoTime('front', this.value)" class="w-full">
+                        <input type="range" id="time-front-slider" min="3" max="30" value="3" oninput="updateAutoTime('front', this.value)" class="w-full">
                         <div class="text-right text-xs font-bold text-blue-500 mt-1"><span id="time-front-val">10</span>s</div>
                     </div>
                     <div class="setting-item-box">
@@ -671,7 +651,6 @@
                     <div class="flashcard-inner" id="flashcard-inner">
                         <div class="flashcard-front">
                             <div id="flash-h-front" class="chinese-font text-color-hanzi"></div>
-                            <p class="text-[10px] text-slate-400 mt-4 uppercase tracking-widest">Nhấn để xem đáp án</p>
                         </div>
                         <div class="flashcard-back">
                             <div class="back-divider"></div>
@@ -1208,19 +1187,37 @@ hBack.classList.add('fade-in');
 }
 }
 
-        function nextFlashcard() {
+function nextFlashcard() {
     const inner = document.getElementById('flashcard-inner');
+    const hFront = document.getElementById('flash-h-front');
 
     if (isAuto) {
-        // chạy animation biến mất
-        inner.classList.add('flashcard-exit');
+        // ✅ 1. Lật về mặt trước
+        inner.classList.remove('is-flipped');
 
+        // ✅ 2. NGAY LẬP TỨC làm trắng mặt trước
+        hFront.classList.remove('fade-in');
+        hFront.style.opacity = '0';
+        hFront.innerText = ''; // 💥 xoá nội dung cũ
+
+        // (tuỳ chọn: xoá luôn back để chắc chắn)
+        document.getElementById('flash-h-back').innerText = '';
+        document.getElementById('flash-p').innerText = '';
+        document.getElementById('flash-m').innerText = '';
+
+        // ✅ 3. Đợi flip xong
         setTimeout(() => {
-            inner.classList.remove('flashcard-exit');
-
             currentIndex = (currentIndex + 1) % quizPool.length;
+
+            // reset trạng thái flip
+            inner.style.transition = 'none';
+            inner.classList.remove('is-flipped');
+            void inner.offsetWidth;
+            inner.style.transition = 'transform 0.6s';
+
+            // ✅ 4. Load thẻ mới
             showFlashcard();
-        }, 800); // khớp animation
+        }, 600);
     } else {
         currentIndex = (currentIndex + 1) % quizPool.length;
         showFlashcard();
