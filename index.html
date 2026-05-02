@@ -393,7 +393,7 @@
                                 <label class="text-[11px] font-bold text-custom-muted uppercase tracking-wider">Zoom Toàn Trang</label>
                                 <span id="page-zoom-val" class="text-xs font-bold text-orange-500">100%</span>
                             </div>
-                            <input type="range" id="page-zoom-slider" min="50" max="150" value="100" oninput="updatePageZoom(this.value)" class="w-full">
+                            <input type="range" id="page-zoom-slider" min="50" max="150" value="140" oninput="updatePageZoom(this.value)" class="w-full">
                         </div>
                     </div>
 
@@ -522,14 +522,14 @@
                                 <label class="text-[11px] font-bold text-custom-muted uppercase tracking-wider">Cỡ chữ trả lời</label>
                                 <span id="a-font-size-val" class="text-xs font-bold text-emerald-500">16px</span>
                             </div>
-                            <input type="range" id="a-font-size-slider" min="10" max="80" value="40" oninput="updateAFontSize(this.value)" class="w-full">
+                            <input type="range" id="a-font-size-slider" min="10" max="80" value="30" oninput="updateAFontSize(this.value)" class="w-full">
                         </div>
                         <div class="setting-item-box">
                             <div class="flex justify-between items-center mb-3">
                                 <label class="text-[11px] font-bold text-custom-muted uppercase tracking-wider">Cỡ chữ đáp án</label>
                                 <span id="ans-font-size-val" class="text-xs font-bold text-orange-500">20px</span>
                             </div>
-                            <input type="range" id="ans-font-size-slider" min="10" max="80" value="40" oninput="updateAnsFontSize(this.value)" class="w-full">
+                            <input type="range" id="ans-font-size-slider" min="10" max="80" value="30" oninput="updateAnsFontSize(this.value)" class="w-full">
                         </div>
                     </div>
 
@@ -611,12 +611,12 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="setting-item-box">
                         <label class="text-[11px] font-bold text-custom-muted uppercase mb-3 block">Cỡ chữ Mặt trước (Hán tự)</label>
-                        <input type="range" min="10" max="150" value="100" oninput="updateFlashFontSize('front', this.value)" class="w-full">
+                        <input type="range" min="10" max="150" value="135" oninput="updateFlashFontSize('front', this.value)" class="w-full">
                         <div class="text-right text-xs font-bold text-blue-500 mt-1"><span id="flash-front-val">60</span>px</div>
                     </div>
                     <div class="setting-item-box">
                         <label class="text-[11px] font-bold text-custom-muted uppercase mb-3 block">Cỡ chữ Mặt sau (Pinyin/Nghĩa)</label>
-                        <input type="range" min="10" max="100" value="45" oninput="updateFlashFontSize('back', this.value)" class="w-full">
+                        <input type="range" min="10" max="100" value="35" oninput="updateFlashFontSize('back', this.value)" class="w-full">
                         <div class="text-right text-xs font-bold text-emerald-500 mt-1"><span id="flash-back-val">24</span>px</div>
                     </div>
                 </div>
