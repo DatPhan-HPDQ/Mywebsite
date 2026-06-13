@@ -436,7 +436,36 @@
             </div>
 
             <div class="bg-custom-card rounded-2xl border overflow-hidden shadow-sm">
-                <div class="overflow-x-auto">
+
+    <div class="flex justify-between items-center px-4 py-3 border-b">
+        <span class="text-xs font-bold uppercase text-custom-muted">
+            Danh sách từ vựng
+        </span>
+
+        <div class="flex gap-2">
+
+    <div class="flex gap-2">
+
+    <button
+        id="toggle-sound-btn"
+        onclick="toggleTableSound()"
+        class="w-[80px] h-8 bg-emerald-600 text-white rounded-lg text-[10px] font-bold uppercase">
+        Tắt âm
+    </button>
+
+    <button
+    id="toggle-hide-btn"
+    onclick="toggleHideMeaningPinyin()"
+    class="w-[80px] h-8 bg-emerald-600 text-white rounded-lg text-[10px] font-bold uppercase">
+    Ẩn
+</button>
+
+</div>
+
+</div>
+    </div>
+
+    <div class="overflow-x-auto">
                     <table class="vocab-table">
                         <thead>
                             <tr>
@@ -712,6 +741,9 @@
         let autoTimer = null;
         let timeFront = 10;
         let timeBack = 10;
+        
+        let hideMeaningPinyin = false;
+        let tableSoundEnabled = true;
 
         window.onload = () => {
             initTheme();
@@ -866,29 +898,142 @@
         }
 
         function renderTable() {
-            const tbody = document.getElementById('vocab-list');
-            tbody.innerHTML = '';
-            vocabulary.forEach((item, index) => {
-                const tr = document.createElement('tr');
-                if (item.learned) tr.classList.add('learned-row');
-                tr.innerHTML = `
-                    <td class="hanzi-cell chinese-font" style="font-size: ${tableFontSize * 1.7}px">${item.h}</td>
-                    <td class="pinyin-cell" style="font-size: ${tableFontSize}px">${item.p}</td>
-                    <td class="meaning-cell" style="font-size: ${tableFontSize}px">${item.m}</td>
-                    <td class="text-center">
-                        <input type="checkbox" class="custom-checkbox" ${item.learned ? 'checked' : ''} onchange="toggleLearned(${index})">
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
+    const tbody = document.getElementById('vocab-list');
+    tbody.innerHTML = '';
+
+    vocabulary.forEach((item, index) => {
+
+        const showDetail =
+            !hideMeaningPinyin ||
+            item.showDetail === true;
+
+        const tr = document.createElement('tr');
+
+        if (item.learned)
+            tr.classList.add('learned-row');
+
+        tr.innerHTML = `
+            <td
+                class="hanzi-cell chinese-font"
+                style="
+                    font-size:${tableFontSize * 1.7}px;
+                    line-height:1.2;
+                    cursor:pointer;
+                "
+                onclick="handleHanziClick(${index})"
+            >
+                ${item.h}
+            </td>
+
+            <td
+                class="pinyin-cell"
+                style="
+                    font-size:${tableFontSize}px;
+                    line-height:1.2;
+                    ${showDetail ? '' : 'color:transparent;'}
+                "
+            >
+                ${showDetail ? item.p : '-'}
+            </td>
+
+            <td
+                class="meaning-cell"
+                style="
+                    font-size:${tableFontSize}px;
+                    line-height:1.2;
+                    ${showDetail ? '' : 'color:transparent;'}
+                "
+            >
+                ${showDetail ? item.m : '-'}
+            </td>
+
+            <td class="text-center">
+                <input
+                    type="checkbox"
+                    class="custom-checkbox"
+                    ${item.learned ? 'checked' : ''}
+                    onchange="toggleLearned(${index})"
+                >
+            </td>
+        `;
+
+        tbody.appendChild(tr);
+    });
+}
 
         function toggleLearned(index) {
             vocabulary[index].learned = !vocabulary[index].learned;
             localStorage.setItem(STORAGE_KEY, JSON.stringify(vocabulary));
             renderTable();
         }
+        function toggleHideMeaningPinyin() {
 
+    hideMeaningPinyin = !hideMeaningPinyin;
+
+    const btn = document.getElementById('toggle-hide-btn');
+
+    if (hideMeaningPinyin) {
+
+        btn.innerText = 'Hiện';
+
+        // Đổi màu giống nút âm thanh
+        btn.classList.remove('bg-orange-500');
+        btn.classList.remove('bg-emerald-600');
+        btn.classList.add('bg-red-600');
+
+    } else {
+
+        vocabulary.forEach(item => {
+            item.showDetail = false;
+        });
+
+        btn.innerText = 'Ẩn';
+
+        // Trở lại màu xanh
+        btn.classList.remove('bg-red-600');
+        btn.classList.add('bg-emerald-600');
+    }
+
+    renderTable();
+}
+
+function toggleRowDetail(index) {
+
+    if (!hideMeaningPinyin) return;
+
+    vocabulary[index].showDetail =
+        !vocabulary[index].showDetail;
+
+    renderTable();
+}
+function handleHanziClick(index) {
+
+    const item = vocabulary[index];
+
+    if (tableSoundEnabled) {
+        speakHanzi(item.h);
+    }
+
+    if (hideMeaningPinyin) {
+        toggleRowDetail(index);
+    }
+}
+function toggleTableSound() {
+
+    tableSoundEnabled = !tableSoundEnabled;
+
+    const btn = document.getElementById('toggle-sound-btn');
+
+    if (tableSoundEnabled) {
+        btn.innerText = 'Tắt âm';
+        btn.classList.remove('bg-red-600');
+        btn.classList.add('bg-emerald-600');
+    } else {
+        btn.innerText = 'Bật âm';
+        btn.classList.remove('bg-emerald-600');
+        btn.classList.add('bg-red-600');
+    }
+}
         function showTab(tabName) {
             // Khi chuyển tab, thoát mọi trạng thái học hiện tại
             stopAuto();
